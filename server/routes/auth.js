@@ -47,7 +47,8 @@ router.post(
           mobile: user.mobile,
           role: user.role,
           location: user.location,
-          isVerifiedBadge: user.isVerifiedBadge
+          isVerifiedBadge: user.isVerifiedBadge,
+          avatar: user.avatar
         }
       });
     } catch (err) {
@@ -93,7 +94,8 @@ router.post(
           mobile: user.mobile,
           role: user.role,
           location: user.location,
-          isVerifiedBadge: user.isVerifiedBadge
+          isVerifiedBadge: user.isVerifiedBadge,
+          avatar: user.avatar
         }
       });
     } catch (err) {
