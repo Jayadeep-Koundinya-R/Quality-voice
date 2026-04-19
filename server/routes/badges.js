@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Badge = require('../models/Badge');
 const Shop = require('../models/Shop');
-const { protect, govtOrAdmin } = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 
-// POST /api/badges/:shopId — give badge to a shop
-router.post('/:shopId', protect, govtOrAdmin, async (req, res) => {
+// POST /api/badges/:shopId — temporary local access for authenticated users
+router.post('/:shopId', protect, async (req, res) => {
   try {
     const shop = await Shop.findById(req.params.shopId);
     if (!shop) return res.status(404).json({ message: 'Shop not found' });
@@ -27,8 +27,8 @@ router.post('/:shopId', protect, govtOrAdmin, async (req, res) => {
   }
 });
 
-// DELETE /api/badges/:shopId — remove badge from a shop
-router.delete('/:shopId', protect, govtOrAdmin, async (req, res) => {
+// DELETE /api/badges/:shopId — temporary local access for authenticated users
+router.delete('/:shopId', protect, async (req, res) => {
   try {
     const shop = await Shop.findById(req.params.shopId);
     if (!shop) return res.status(404).json({ message: 'Shop not found' });

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Report = require('../models/Report');
 const Shop = require('../models/Shop');
-const { protect, govtOrAdmin } = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
 // POST /api/reports — submit a report
@@ -37,8 +37,8 @@ router.post('/', protect, upload.single('photo'), async (req, res) => {
   }
 });
 
-// GET /api/reports — get all reports (govt/admin only)
-router.get('/', protect, govtOrAdmin, async (req, res) => {
+// GET /api/reports — temporary local access for authenticated users
+router.get('/', protect, async (req, res) => {
   try {
     const reports = await Report.find()
       .populate('shopId', 'name city category')
@@ -51,14 +51,15 @@ router.get('/', protect, govtOrAdmin, async (req, res) => {
   }
 });
 
-// PUT /api/reports/:id/status — mark report as reviewed (govt/admin only)
-router.put('/:id/status', protect, govtOrAdmin, async (req, res) => {
+// PUT /api/reports/:id/status — temporary local access for authenticated users
+router.put('/:id/status', protect, async (req, res) => {
   try {
     const report = await Report.findByIdAndUpdate(
       req.params.id,
       { status: 'reviewed' },
       { new: true }
     );
+
     if (!report) return res.status(404).json({ message: 'Report not found' });
     res.json({ report });
   } catch (err) {

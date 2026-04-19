@@ -1,0 +1,7 @@
+
+> server@1.0.0 start
+> node index.js
+
+◇ injected env (4) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+MongoDB connected
+Server running on port 5000
