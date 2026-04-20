@@ -12,6 +12,7 @@ const commentRoutes = require('./routes/comments');
 const reportRoutes = require('./routes/reports');
 const badgeRoutes = require('./routes/badges');
 const feedRoutes = require('./routes/feed');
+const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/badges', badgeRoutes);
 app.use('/api/feed', feedRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

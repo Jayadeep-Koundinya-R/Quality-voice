@@ -23,7 +23,12 @@ const reviewSchema = new mongoose.Schema(
       required: [true, 'Review text is required'],
       minlength: [20, 'Review must be at least 20 characters']
     },
-    photos: [{ type: String }]
+    photos: [{ type: String }],
+    // Review likes — array of user IDs who liked this review
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    likeCount: { type: Number, default: 0 },
+    // Trending score — recalculated on each new review/like
+    trendScore: { type: Number, default: 0 }
   },
   { timestamps: true }
 );
