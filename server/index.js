@@ -16,6 +16,12 @@ const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
 // Middleware
 const allowedOrigins = [
   'http://localhost:3000',
@@ -68,3 +74,6 @@ mongoose
     console.error('MongoDB connection error:', err.message);
     process.exit(1);
   });
+app.get("/", (req, res) => {
+  res.send("Quality Voice API is running 🚀");
+});
