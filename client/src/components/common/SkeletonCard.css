@@ -1,0 +1,91 @@
+/* Vertical card skeleton */
+.skeleton-card-v {
+  flex-shrink: 0;
+  width: 200px;
+  background: var(--bg-card);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.skeleton-img-v {
+  width: 100%;
+  height: 130px;
+}
+
+.skeleton-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Horizontal card skeleton */
+.skeleton-card-h {
+  display: flex;
+  background: var(--bg-card);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.skeleton-img-h {
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+}
+
+.skeleton-body-h {
+  padding: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* Feed section skeleton */
+.skeleton-feed-section { padding: 20px 16px 0; }
+
+.skeleton-section-header { margin-bottom: 14px; }
+
+.skeleton-scroll-row {
+  display: flex;
+  gap: 12px;
+  overflow: hidden;
+}
+
+/* Review skeleton */
+.skeleton-review {
+  background: var(--bg-card);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.skeleton-review-header {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.skeleton-review-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* Skeleton shapes */
+.skeleton-title       { height: 16px; width: 75%; }
+.skeleton-sub         { height: 12px; width: 55%; }
+.skeleton-stars       { height: 12px; width: 40%; }
+.skeleton-section-title { height: 18px; width: 140px; }
+.skeleton-avatar      { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; }
+.skeleton-name        { height: 14px; width: 120px; }
+.skeleton-date        { height: 11px; width: 80px; }
+.skeleton-text-line   { height: 13px; width: 100%; margin-bottom: 6px; }
+.skeleton-text-short  { width: 65%; }

@@ -1,0 +1,321 @@
+.addshop-page {
+  background: var(--bg-page);
+  min-height: 100vh;
+  padding: 24px 0 64px;
+}
+
+.addshop-container {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+.addshop-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 92% -30%, rgba(99,102,241,0.18), transparent 48%),
+    var(--bg-card);
+}
+
+.addshop-back-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: var(--transition);
+  box-shadow: var(--shadow-xs);
+}
+
+.addshop-back-btn:hover {
+  background: var(--bg-elevated);
+  transform: scale(1.05);
+}
+
+.addshop-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  line-height: 1.1;
+}
+
+.addshop-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* ── Progress steps ─────────────────────────────────────────────────────────── */
+.addshop-progress {
+  display: flex;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.addshop-step-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.addshop-step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 2px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  font-family: var(--font-heading);
+}
+
+.addshop-step-circle.active {
+  background: var(--gradient-brand);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 12px rgba(79,70,229,0.4);
+}
+
+.addshop-step-circle.done {
+  background: var(--success);
+  border-color: transparent;
+  color: white;
+}
+
+.addshop-step-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.addshop-step-label.active {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.addshop-step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border-color);
+  margin: 0 6px;
+  margin-bottom: 18px;
+  transition: background 0.3s;
+}
+
+.addshop-step-line.done { background: var(--success); }
+
+/* ── Card ───────────────────────────────────────────────────────────────────── */
+.addshop-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="dark"] .addshop-card {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(12px);
+}
+
+/* ── Step content ───────────────────────────────────────────────────────────── */
+.addshop-step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: fadeSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.addshop-step-title {
+  letter-spacing: -0.01em;
+}
+
+.addshop-step-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+}
+
+.addshop-step-sub {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: -8px;
+}
+
+.required { color: var(--danger); }
+
+/* ── Category grid ──────────────────────────────────────────────────────────── */
+.addshop-cat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.addshop-cat-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 12px;
+  background: var(--bg-elevated);
+  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-xs);
+}
+
+.addshop-cat-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.addshop-cat-tile.selected {
+  box-shadow: var(--shadow-md);
+}
+
+.addshop-cat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.addshop-cat-label {
+  font-size: 13px;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+/* ── 2-col grid ─────────────────────────────────────────────────────────────── */
+.addshop-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── Upload area ────────────────────────────────────────────────────────────── */
+.addshop-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border: 2px dashed var(--border-strong);
+  border-radius: 16px;
+  padding: 32px 20px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+
+.addshop-upload-area:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: translateY(-1px);
+}
+
+.addshop-upload-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.addshop-upload-note {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ── Preview grid ───────────────────────────────────────────────────────────── */
+.addshop-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.addshop-preview-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.addshop-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+
+.addshop-remove-photo {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.65);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.addshop-remove-photo:hover { background: rgba(0,0,0,0.85); }
+
+/* ── Continue button ────────────────────────────────────────────────────────── */
+.addshop-continue-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 15px;
+  background: var(--gradient-brand);
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 16px rgba(79,70,229,0.35);
+  font-family: var(--font-heading);
+  margin-top: 4px;
+}
+
+.addshop-continue-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(79,70,229,0.45);
+}
+
+.addshop-continue-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}

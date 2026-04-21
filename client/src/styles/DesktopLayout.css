@@ -1,0 +1,286 @@
+/* Only applies on desktop (1024px+) */
+@media (min-width: 1024px) {
+  .desktop-layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) var(--feed-max) 1fr;
+    min-height: 100vh;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  /* ─── Left Sidebar ─────────────────────────────────────────────────────── */
+  .desktop-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+    background: var(--bg-primary);
+    padding: 20px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    scrollbar-width: none;
+  }
+
+  .desktop-sidebar::-webkit-scrollbar { display: none; }
+
+  .desktop-sidebar-logo {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--primary);
+    padding: 8px 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.3px;
+  }
+
+  .desktop-sidebar-logo span { color: var(--accent); }
+
+  .desktop-logo-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--primary-gradient);
+    color: white;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .desktop-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    transition: var(--transition);
+  }
+
+  .desktop-nav-item:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  .desktop-nav-item.active {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+
+  .desktop-nav-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    transition: var(--transition);
+  }
+
+  .desktop-nav-item.active .desktop-nav-icon {
+    background: var(--primary);
+    color: white;
+  }
+
+  .desktop-nav-item:hover .desktop-nav-icon {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+  }
+
+  .desktop-nav-icon-add {
+    background: var(--primary-light) !important;
+    color: var(--primary) !important;
+  }
+
+  .desktop-add-btn {
+    color: var(--primary);
+    margin-top: 4px;
+  }
+
+  .desktop-logout {
+    color: var(--danger) !important;
+  }
+
+  .desktop-logout .desktop-nav-icon {
+    background: var(--danger-bg) !important;
+    color: var(--danger) !important;
+  }
+
+  .desktop-sidebar-bottom {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  /* ─── Center Feed ──────────────────────────────────────────────────────── */
+  .desktop-feed {
+    border-right: 1px solid var(--border);
+    min-height: 100vh;
+    background: var(--bg-primary);
+  }
+
+  .desktop-feed-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--topbar-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+  }
+
+  .desktop-feed-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .desktop-feed-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+
+  /* ─── Right Panel ──────────────────────────────────────────────────────── */
+  .desktop-right-panel {
+    padding: 20px 20px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .desktop-right-panel::-webkit-scrollbar { display: none; }
+
+  .desktop-user-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .desktop-user-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .desktop-user-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+
+  .desktop-user-email {
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
+
+  .desktop-right-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+
+  .desktop-right-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+
+  .desktop-right-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .desktop-how-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .desktop-how-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .desktop-right-footer {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 16px;
+    text-align: center;
+  }
+}
+
+/* Hide on mobile/tablet */
+@media (max-width: 1023px) {
+  .desktop-layout {
+    display: contents;
+  }
+  .desktop-sidebar,
+  .desktop-right-panel,
+  .desktop-feed-header {
+    display: none !important;
+  }
+  .desktop-feed {
+    display: contents;
+  }
+}
