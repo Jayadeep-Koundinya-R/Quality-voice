@@ -28,7 +28,13 @@ const reviewSchema = new mongoose.Schema(
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     likeCount: { type: Number, default: 0 },
     // Trending score — recalculated on each new review/like
-    trendScore: { type: Number, default: 0 }
+    trendScore: { type: Number, default: 0 },
+    // Traveller review — set when reviewer's home city differs from shop's city
+    isTravellerReview: { type: Boolean, default: false },
+    reviewerHomeCity:  { type: String, default: '' },
+    // Helpful votes
+    helpfulCount: { type: Number, default: 0 },
+    helpfulBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
   },
   { timestamps: true }
 );

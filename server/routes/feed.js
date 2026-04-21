@@ -40,15 +40,24 @@ function trendingScore(shop, recentReviewCount) {
 // GET /api/feed
 router.get('/', protect, async (req, res) => {
   try {
-    const { city, district, area, category } = req.query;
+    const { city, category } = req.query;
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 8, 1), 20);
+    const skip = (page - 1) * limit;
 
     const locationQuery = {};
     if (city) locationQuery.city = new RegExp(city, 'i');
-    if (district) locationQuery.district = new RegExp(district, 'i');
-    if (area) locationQuery.area = new RegExp(area, 'i');
+    // district and area are intentionally NOT used as filters —
+    // the feed shows all shops in the same city regardless of locality
 
-    const categoryQuery = category && category !== 'All' ? { category } : {};
+    const categoryQuery = {};
+    if (category && category.toLowerCase() !== 'all') {
+      // Normalize to match MongoDB enum: 'Food', 'Services', 'Shops', 'Products'
+      const normalized = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+      categoryQuery.category = normalized;
+    }
     const baseQuery = { ...locationQuery, ...categoryQuery };
+    console.log('[feed] baseQuery:', JSON.stringify(baseQuery));
 
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -94,7 +103,40 @@ router.get('/', protect, async (req, res) => {
       .limit(10)
       .lean();
 
-    res.json({ trending, newShops, badgeShops });
+    // Recent reviews — social feed with true DB pagination.
+    // Constrain review query to matching shops so skip/limit are globally correct.
+    const filteredShops = await Shop.find(baseQuery).select('_id').lean();
+    const filteredShopIds = filteredShops.map((shop) => shop._id);
+    const reviewQuery = filteredShopIds.length
+      ? { shopId: { $in: filteredShopIds } }
+      : { shopId: null };
+
+    const [totalReviews, paginatedReviews] = await Promise.all([
+      Review.countDocuments(reviewQuery),
+      Review.find(reviewQuery)
+        .populate('userId', 'name avatar location')
+        .populate('shopId', 'name category city area')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+    ]);
+
+    const hasMore = skip + paginatedReviews.length < totalReviews;
+
+    res.json({
+      trending,
+      newShops,
+      badgeShops,
+      recentReviews: paginatedReviews,
+      pagination: {
+        page,
+        limit,
+        total: totalReviews,
+        hasMore,
+        nextPage: hasMore ? page + 1 : null
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }

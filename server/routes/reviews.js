@@ -37,6 +37,15 @@ router.post('/', protect, upload.array('photos', 5), async (req, res) => {
     const shop = await Shop.findById(shopId);
     if (!shop) return res.status(404).json({ message: 'Shop not found' });
 
+    // Determine if this is a traveller review
+    // Compare reviewer's home city with the shop's city (case-insensitive)
+    const userHomeCity = req.user.location?.city || '';
+    const shopCity = shop.city || '';
+    const isTravellerReview =
+      userHomeCity.trim().length > 0 &&
+      shopCity.trim().length > 0 &&
+      userHomeCity.trim().toLowerCase() !== shopCity.trim().toLowerCase();
+
     const photos = req.files.map((f) => `/uploads/${f.filename}`);
 
     const review = await Review.create({
@@ -44,7 +53,9 @@ router.post('/', protect, upload.array('photos', 5), async (req, res) => {
       userId: req.user._id,
       starRating: parseInt(starRating),
       reviewText,
-      photos
+      photos,
+      isTravellerReview,
+      reviewerHomeCity: isTravellerReview ? userHomeCity.trim() : ''
     });
 
     // Recalculate average rating
@@ -101,6 +112,30 @@ router.post('/:id/like', protect, async (req, res) => {
       liked: !alreadyLiked,
       likeCount: review.likeCount
     });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// POST /api/reviews/:id/helpful — toggle helpful on a review
+router.post('/:id/helpful', protect, async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    if (!review) return res.status(404).json({ message: 'Review not found' });
+
+    const userId = req.user._id;
+    const alreadyHelpful = review.helpfulBy.some(id => id.toString() === userId.toString());
+
+    if (alreadyHelpful) {
+      review.helpfulBy = review.helpfulBy.filter(id => id.toString() !== userId.toString());
+    } else {
+      review.helpfulBy.push(userId);
+    }
+
+    review.helpfulCount = review.helpfulBy.length;
+    await review.save();
+
+    res.json({ helpful: !alreadyHelpful, helpfulCount: review.helpfulCount });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
