@@ -1,8 +1,7 @@
 import axios from 'axios';
 
 // Get API URL from environment or use production fallback
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000'|| 
-  (import.meta.env.PROD ? 'https://api.qualityvoice.app' : 'http://localhost:5000');
+const API_URL = process.env.REACT_APP_API_URL || 'https://quality-voice.onrender.com';
 
 if (!process.env.REACT_APP_API_URL && import.meta.env.PROD) {
   console.warn('⚠️ REACT_APP_API_URL not set. Using default:', API_URL);
