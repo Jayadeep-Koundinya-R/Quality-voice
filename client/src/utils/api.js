@@ -1,7 +1,14 @@
 import axios from 'axios';
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Get API URL from environment or use production fallback
+const API_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.PROD ? 'https://api.qualityvoice.app' : 'http://localhost:5000');
 
+if (!import.meta.env.VITE_API_URL && import.meta.env.PROD) {
+  console.warn('⚠️ VITE_API_URL not set. Using default:', API_URL);
+}
+
+export { API_URL };
 const API = axios.create({
   baseURL: `${API_URL}/api`
 });

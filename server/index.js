@@ -18,16 +18,14 @@ const app = express();
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
 // Middleware
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://localhost:3002'
-];
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:3002'
+    ];
 
 app.use(cors({
   origin: allowedOrigins,
@@ -62,18 +60,26 @@ app.use((err, req, res, next) => {
 });
 
 // Connect to MongoDB and start server
+if (!process.env.MONGO_URI) {
+  console.error('ERROR: MONGO_URI environment variable is not set');
+  process.exit(1);
+}
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log('MongoDB connected');
-    app.listen(process.env.PORT || 5000, () => {
-      console.log(`Server running on port ${process.env.PORT || 5000}`);
-    });
   })
   .catch((err) => {
     console.error('MongoDB connection error:', err.message);
     process.exit(1);
   });
+
 app.get("/", (req, res) => {
   res.send("Quality Voice API is running 🚀");
+});
+
+// Start server only once (moved here AFTER routes and middleware setup)
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

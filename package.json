@@ -1,0 +1,17 @@
+{
+  "name": "qualityvoice",
+  "version": "1.0.0",
+  "description": "QualityVoice - Shop Review & Rating Platform",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm start\"",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "build": "cd server && npm run build && cd ../client && npm run build",
+    "start": "cd server && npm start"
+  },
+  "dependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
