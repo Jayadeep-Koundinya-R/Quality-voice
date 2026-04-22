@@ -5,7 +5,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useLocation as useLocCtx } from '../../context/LocationContext';
 
 import {
-  Search, Bell, MapPin, ChevronDown, Moon, Sun,
+  Search, Bell, ChevronDown, Moon, Sun,
   User, Settings, LogOut, LayoutDashboard, X, Navigation2, Mic2
 } from 'lucide-react';
 import './Navbar.css';
