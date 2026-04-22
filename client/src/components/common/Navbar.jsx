@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useLocation as useLocCtx } from '../../context/LocationContext';
+import { MapPin } from "lucide-react";
 import {
   Search, Bell, MapPin, ChevronDown, Moon, Sun,
   User, Settings, LogOut, LayoutDashboard, X, Navigation2, Mic2
