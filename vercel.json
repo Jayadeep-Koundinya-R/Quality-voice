@@ -2,23 +2,26 @@
   "version": 2,
   "buildCommand": "cd client && npm run build",
   "outputDirectory": "client/build",
-  "env": {
-    "VITE_API_URL": "@vite_api_url"
-  },
   "functions": {
-    "server/index.js": {
+    "server/**/*.js": {
       "runtime": "nodejs20.x"
     }
   },
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server/index.js"
+      "dest": "/server/index.js"
     },
     {
       "src": "/(.*)",
-      "dest": "client/build/index.html"
+      "dest": "/client/build/$1"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/client/build/index.html"
     }
   ]
 }
-}
+
