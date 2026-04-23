@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mic2, Eye, EyeOff } from 'lucide-react';
@@ -21,6 +21,31 @@ const SignupPage = () => {
   const [loading, setLoading] = useState(false);
 
   const strength = getPasswordStrength(form.password);
+
+  // Generate floating shapes for animated background
+  const floatingShapes = useMemo(() => 
+    Array.from({ length: 8 }, (_, i) => ({
+      id: i,
+      type: ['circle', 'square', 'diamond'][i % 3],
+      size: 30 + (i % 3) * 25,
+      delay: i * 0.4,
+      duration: 15 + (i % 4) * 3,
+      left: 5 + (i * 11) % 85,
+      top: 8 + (i * 10) % 75,
+    })), []
+  );
+
+  // Generate particles
+  const particles = useMemo(() => 
+    Array.from({ length: 20 }, (_, i) => ({
+      id: i,
+      size: 2 + (i % 4) * 2,
+      delay: i * 0.3,
+      duration: 8 + (i % 5) * 2,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+    })), []
+  );
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -56,6 +81,48 @@ const SignupPage = () => {
 
   return (
     <div className="auth-page">
+      {/* Animated background elements */}
+      <div className="auth-gradient-orb auth-gradient-orb-1" aria-hidden="true" />
+      <div className="auth-gradient-orb auth-gradient-orb-2" aria-hidden="true" />
+      <div className="auth-gradient-orb auth-gradient-orb-3" aria-hidden="true" />
+      
+      {/* Floating geometric shapes */}
+      {floatingShapes.map((shape) => (
+        <div
+          key={shape.id}
+          className={`auth-floating-shape auth-floating-shape-${shape.type}`}
+          style={{
+            width: shape.size,
+            height: shape.size,
+            left: `${shape.left}%`,
+            top: `${shape.top}%`,
+            animationDelay: `${shape.delay}s`,
+            animationDuration: `${shape.duration}s`,
+          }}
+          aria-hidden="true"
+        />
+      ))}
+
+      {/* Particles */}
+      {particles.map((particle) => (
+        <div
+          key={particle.id}
+          className="auth-particle"
+          style={{
+            width: particle.size,
+            height: particle.size,
+            left: `${particle.left}%`,
+            top: `${particle.top}%`,
+            animationDelay: `${particle.delay}s`,
+            animationDuration: `${particle.duration}s`,
+          }}
+          aria-hidden="true"
+        />
+      ))}
+
+      {/* Grid overlay */}
+      <div className="auth-grid-overlay" aria-hidden="true" />
+
       <div className="auth-card">
         <div className="auth-header">
           <div className="auth-logo">
