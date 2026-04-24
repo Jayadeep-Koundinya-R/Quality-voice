@@ -1,6 +1,103 @@
 .home-page {
   background: var(--bg);
   min-height: 100vh;
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+  PULL-TO-REFRESH INDICATOR
+  Mobile pull-to-refresh with visual feedback
+  ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ptr-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: linear-gradient(to bottom, var(--primary-light), transparent);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.ptr-spinner {
+  color: var(--primary);
+  animation: ptr-bounce 0.6s ease-in-out infinite;
+}
+
+.ptr-spinner--ready {
+  animation: ptr-pulse 0.4s ease-in-out infinite;
+}
+
+.ptr-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@keyframes ptr-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes ptr-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* Hide on desktop */
+@media (min-width: 768px) {
+  .ptr-indicator {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+  FLOATING ACTION BUTTON (FAB)
+  Quick access to write new review from anywhere in feed
+  ═══════════════════════════════════════════════════════════════════════════════ */
+
+.fab-button {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 20px rgba(79, 70, 229, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.2s ease;
+}
+
+.fab-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 28px rgba(79, 70, 229, 0.5);
+}
+
+.fab-button:active {
+  transform: scale(0.95);
+}
+
+/* Hide on larger screens */
+@media (min-width: 1024px) {
+  .fab-button {
+    bottom: 100px;
+    right: calc(50% - 580px);
+  }
 }
 
 /* ─── HERO ───────────────────────────────────────────────────────────────────── */

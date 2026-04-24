@@ -139,6 +139,8 @@
 }
 
 .profile-stat-value--amber { color: var(--amber); }
+.profile-stat-value--blue { color: var(--primary); }
+.profile-stat-value--green { color: var(--green); }
 
 /* ── ACTION BUTTONS ─────────────────────────────────────────────────────────── */
 .profile-action-btns {

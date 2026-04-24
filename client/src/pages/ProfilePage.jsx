@@ -6,8 +6,9 @@ import { getProfile, updateProfile, API_URL } from '../utils/api';
 import {
   ShieldCheck, LayoutDashboard, MapPin,
   Upload, Star, Settings, Edit2, Plus, DoorOpen, ChevronRight,
-  MessageSquare, TrendingUp
+  MessageSquare, TrendingUp, Users, UserPlus
 } from 'lucide-react';
+import FollowersList from '../components/common/FollowersList';
 import '../styles/Profile.css';
 
 const ProfilePage = () => {
@@ -18,6 +19,8 @@ const ProfilePage = () => {
   const [reviews, setReviews]       = useState([]);
   const [loading, setLoading]       = useState(true);
   const [showEdit, setShowEdit]     = useState(false);
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
   const [editForm, setEditForm]     = useState({
     name: user?.name || '', mobile: user?.mobile || '',
     city: user?.location?.city || '', district: user?.location?.district || '', area: user?.location?.area || ''
@@ -39,6 +42,8 @@ const ProfilePage = () => {
     ? (reviews.reduce((s, r) => s + r.starRating, 0) / reviews.length).toFixed(1)
     : '—';
   const shopsCount = new Set(reviews.map(r => r.shopId?._id)).size;
+  const followersCount = user?.followers?.length || 0;
+  const followingCount = user?.following?.length || 0;
 
   const handleSave = async e => {
     e.preventDefault();
@@ -103,6 +108,26 @@ const ProfilePage = () => {
           <div className="profile-stat-card">
             <span className="profile-stat-label">Shops</span>
             <div className="profile-stat-value">{shopsCount}</div>
+          </div>
+        </div>
+
+        {/* ── SOCIAL STATS ─────────────────────────────────────────────── */}
+        <div className="profile-stats-grid">
+          <div className="profile-stat-card">
+            <span className="profile-stat-label">Followers</span>
+            <div className="profile-stat-value profile-stat-value--blue" onClick={() => setShowFollowers(true)} style={{cursor:'pointer'}}>
+              {followersCount}
+            </div>
+          </div>
+          <div className="profile-stat-card">
+            <span className="profile-stat-label">Following</span>
+            <div className="profile-stat-value profile-stat-value--blue" onClick={() => setShowFollowing(true)} style={{cursor:'pointer'}}>
+              {followingCount}
+            </div>
+          </div>
+          <div className="profile-stat-card">
+            <span className="profile-stat-label">Points</span>
+            <div className="profile-stat-value profile-stat-value--green">{reviews.length * 10 + shopsCount * 20}</div>
           </div>
         </div>
 
@@ -252,6 +277,26 @@ const ProfilePage = () => {
                 Cancel
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── FOLLOWERS MODAL ──────────────────────────────────────────────── */}
+      {showFollowers && (
+        <div className="modal-overlay" onClick={() => setShowFollowers(false)} role="dialog" aria-modal="true">
+          <div className="edit-sheet" onClick={e => e.stopPropagation()}>
+            <h3 className="edit-sheet-title">Followers</h3>
+            <FollowersList type="followers" />
+          </div>
+        </div>
+      )}
+
+      {/* ── FOLLOWING MODAL ──────────────────────────────────────────────── */}
+      {showFollowing && (
+        <div className="modal-overlay" onClick={() => setShowFollowing(false)} role="dialog" aria-modal="true">
+          <div className="edit-sheet" onClick={e => e.stopPropagation()}>
+            <h3 className="edit-sheet-title">Following</h3>
+            <FollowersList type="following" />
           </div>
         </div>
       )}

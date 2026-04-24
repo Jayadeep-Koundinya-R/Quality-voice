@@ -231,6 +231,50 @@
   background: var(--primary-light);
 }
 
+.wr-upload-area--dragging {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: scale(1.01);
+  box-shadow: 0 0 0 3px rgba(91, 79, 232, 0.15);
+}
+
+/* Review templates */
+.wr-templates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.wr-templates-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  width: 100%;
+}
+
+.wr-template-btn {
+  padding: 5px 12px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 500;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.wr-template-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
 .wr-upload-text { font-size: 14px; font-weight: 600; color: var(--text1); }
 .wr-upload-note { font-size: 12px; color: var(--text3); }
 

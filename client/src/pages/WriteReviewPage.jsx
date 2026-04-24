@@ -8,6 +8,16 @@ import '../styles/WriteReview.css';
 const LABELS = ['', 'Terrible', 'Poor', 'Okay', 'Good', 'Excellent'];
 const TIPS = ['Mention food quality, taste, or freshness', 'Talk about cleanliness and hygiene', 'Describe the service speed and staff attitude', 'Was the price fair for what you got?'];
 
+const REVIEW_TEMPLATES = [
+  { label: '⭐ Great food', text: 'The food here is absolutely delicious! Fresh ingredients, great taste, and generous portions. The staff was friendly and the place was clean. Highly recommend!' },
+  { label: '🔧 Excellent service', text: 'Outstanding service! The staff was professional, knowledgeable, and went above and beyond to help. Quick turnaround and fair pricing. Will definitely come back.' },
+  { label: '🛍️ Good value', text: 'Great value for money! Quality products at reasonable prices. The staff was helpful in finding what I needed. Clean and well-organized shop.' },
+  { label: '😐 Average experience', text: 'Decent place overall. The quality was okay but nothing exceptional. Service was average and the wait time was a bit long. Might try again.' },
+  { label: '👎 Needs improvement', text: 'Unfortunately my experience was not great. The quality did not match the price and the service could be improved. Hope they work on these issues.' },
+];
+
+const DRAFT_KEY = 'qv_review_draft';
+
 const WriteReviewPage = () => {
   const { shopId } = useParams();
   const navigate = useNavigate();
@@ -25,6 +35,27 @@ const WriteReviewPage = () => {
   const [previews, setPreviews]       = useState([]);
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState('');
+  const [isDragging, setIsDragging]   = useState(false);
+
+  // Load draft on mount
+  useEffect(() => {
+    try {
+      const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+      if (draft && draft.shopId === (shopId || '')) {
+        if (draft.starRating) setStarRating(draft.starRating);
+        if (draft.reviewText) setReviewText(draft.reviewText);
+      }
+    } catch {}
+  }, [shopId]);
+
+  // Auto-save draft
+  useEffect(() => {
+    if (!reviewText && !starRating) return;
+    const t = setTimeout(() => {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ shopId: shopId || '', starRating, reviewText }));
+    }, 1000);
+    return () => clearTimeout(t);
+  }, [reviewText, starRating, shopId]);
 
   useEffect(() => {
     if (shopId) getShop(shopId).then(({ data }) => setShop(data.shop)).catch(() => {});
@@ -52,6 +83,19 @@ const WriteReviewPage = () => {
     setPreviews(p => { URL.revokeObjectURL(p[i]); return p.filter((_,j) => j !== i); });
   };
 
+  // Drag-and-drop handlers
+  const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragLeave = () => setIsDragging(false);
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    if (files.length + photos.length > 5) { setError('Max 5 photos'); return; }
+    setPhotos(p => [...p, ...files]);
+    setPreviews(p => [...p, ...files.map(f => URL.createObjectURL(f))]);
+    setError('');
+  };
+
   const handleSubmit = async () => {
     setError('');
     const targetId = shopId || selectedId;
@@ -65,6 +109,7 @@ const WriteReviewPage = () => {
       fd.append('shopId', targetId); fd.append('starRating', starRating); fd.append('reviewText', reviewText);
       photos.forEach(p => fd.append('photos', p));
       await createReview(fd);
+      localStorage.removeItem(DRAFT_KEY); // Clear draft on success
       toast.success('Review submitted! Thanks for helping the community.');
       navigate(`/shop/${targetId}`);
     } catch (err) {
@@ -156,6 +201,14 @@ const WriteReviewPage = () => {
 
             <div className="form-group" style={{marginBottom:8}}>
               <label className="form-label">Your review</label>
+              <div className="wr-templates">
+                <span className="wr-templates-label">Quick templates:</span>
+                {REVIEW_TEMPLATES.map((t, i) => (
+                  <button key={i} type="button" className="wr-template-btn" onClick={() => setReviewText(t.text)}>
+                    {t.label}
+                  </button>
+                ))}
+              </div>
               <textarea className="form-input wr-textarea" placeholder="Share your experience in detail…" value={reviewText} onChange={e => setReviewText(e.target.value)} maxLength={1000} rows={5} />
               <div className={`wr-char-count ${reviewText.length >= 20 ? 'ok' : ''}`}>
                 {reviewText.length}/1000 {reviewText.length < 20 && `· ${20-reviewText.length} more needed`}
@@ -176,7 +229,13 @@ const WriteReviewPage = () => {
             <h2 className="wr-step-title">Add photo proof</h2>
             <p className="wr-step-sub">At least 1 photo is required. This helps others trust your review.</p>
 
-            <label className="wr-upload-area" htmlFor="review-photos">
+            <label 
+              className={`wr-upload-area ${isDragging ? 'wr-upload-area--dragging' : ''}`} 
+              htmlFor="review-photos"
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
               <ImagePlus size={36} color="var(--primary)" strokeWidth={1.5} />
               <span className="wr-upload-text">Tap to add photos</span>
               <span className="wr-upload-note">JPEG, PNG, WebP · Max 5MB · Up to 5 photos</span>

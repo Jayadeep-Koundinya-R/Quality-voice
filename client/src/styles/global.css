@@ -3,6 +3,35 @@
 /* ─── RESET ─────────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ─── SMOOTH THEME TRANSITION ───────────────────────────────────────────────── */
+/* Apply smooth color transitions when switching themes */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Transition all color-related properties for smooth theme switching */
+body, 
+.auth-card,
+.auth-page,
+.home-page,
+.search-page,
+.shop-detail-page,
+.write-review-page {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ─── REDUCED MOTION PREFERENCE ─────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════════
   DESIGN SYSTEM - CSS CUSTOM PROPERTIES
   Premium color palette with WCAG AA compliance

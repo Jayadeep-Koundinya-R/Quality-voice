@@ -4,7 +4,7 @@ import { ShopCardHorizontal } from '../components/common/ShopCard';
 import { SkeletonShopCardHorizontal } from '../components/common/SkeletonCard';
 import { getShops } from '../utils/api';
 import { useLocation } from '../context/LocationContext';
-import { Search, X, MapPin, SlidersHorizontal, Star, Compass, Sparkles } from 'lucide-react';
+import { Search, X, MapPin, SlidersHorizontal, Star, Compass, Sparkles, Clock, ArrowUpDown } from 'lucide-react';
 import '../styles/Search.css';
 
 const CATEGORIES = ['All', 'Food', 'Services', 'Shops', 'Products'];
@@ -14,6 +14,25 @@ const RATING_OPTIONS = [
   { label: '4+ stars',   value: 4 },
   { label: '4.5+ stars', value: 4.5 },
 ];
+const SORT_OPTIONS = [
+  { label: 'Relevance',    value: 'relevance' },
+  { label: 'Top Rated',    value: 'rating' },
+  { label: 'Most Reviews', value: 'reviews' },
+  { label: 'Newest',       value: 'newest' },
+];
+
+const MAX_RECENT = 5;
+
+const getRecentSearches = () => {
+  try { return JSON.parse(localStorage.getItem('qv_recent_searches') || '[]'); }
+  catch { return []; }
+};
+
+const saveRecentSearch = (q) => {
+  if (!q.trim()) return;
+  const prev = getRecentSearches().filter(s => s !== q);
+  localStorage.setItem('qv_recent_searches', JSON.stringify([q, ...prev].slice(0, MAX_RECENT)));
+};
 
 const SearchPage = () => {
   const navigate = useNavigate();
@@ -23,6 +42,7 @@ const SearchPage = () => {
   const [query, setQuery]           = useState('');
   const [category, setCategory]     = useState('All');
   const [minRating, setMinRating]   = useState(0);
+  const [sortBy, setSortBy]         = useState('relevance');
   const [shops, setShops]           = useState([]);
   const [loading, setLoading]       = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -30,6 +50,7 @@ const SearchPage = () => {
   const [page, setPage]             = useState(1);
   const [showFilters, setFilters]   = useState(false);
   const [resultError, setResultError] = useState('');
+  const [recentSearches, setRecentSearches] = useState(getRecentSearches);
 
   const [suggestions, setSuggestions]       = useState([]);
   const [showSuggest, setShowSuggest]       = useState(false);
@@ -43,7 +64,7 @@ const SearchPage = () => {
   const sentinelRef = useRef(null);
   const pagingRef = useRef(false);
 
-  const fetchPage = useCallback(async (q, cat, rating, targetPage, replace = false) => {
+  const fetchPage = useCallback(async (q, cat, rating, sort, targetPage, replace = false) => {
     if (!replace && (pagingRef.current || !hasMore)) return;
     if (!replace) pagingRef.current = true;
 
@@ -54,6 +75,7 @@ const SearchPage = () => {
         search: q,
         category: cat,
         minRating: rating || undefined,
+        sortBy: sort !== 'relevance' ? sort : undefined,
         page: targetPage,
         limit: 10
       });
@@ -70,11 +92,11 @@ const SearchPage = () => {
     }
   }, [hasMore]);
 
-  const search = useCallback(async (q, cat, rating) => {
+  const search = useCallback(async (q, cat, rating, sort) => {
     setPage(1);
     setHasMore(false);
     setLoadingMore(false);
-    await fetchPage(q, cat, rating, 1, true);
+    await fetchPage(q, cat, rating, sort, 1, true);
   }, [fetchPage]);
 
   const fetchSuggestions = useCallback(async (q) => {
@@ -89,9 +111,9 @@ const SearchPage = () => {
 
   useEffect(() => {
     clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => search(query, category, minRating), 350);
+    debounceRef.current = setTimeout(() => search(query, category, minRating, sortBy), 350);
     return () => clearTimeout(debounceRef.current);
-  }, [query, category, minRating, search]);
+  }, [query, category, minRating, sortBy, search]);
 
   useEffect(() => {
     clearTimeout(suggestDebRef.current);
@@ -111,16 +133,22 @@ const SearchPage = () => {
       (entries) => {
         const [entry] = entries;
         if (entry.isIntersecting) {
-          fetchPage(query, category, minRating, page + 1, false);
+          fetchPage(query, category, minRating, sortBy, page + 1, false);
         }
       },
       { root: null, rootMargin: '220px 0px', threshold: 0.01 }
     );
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
-  }, [loading, hasMore, page, fetchPage, query, category, minRating]);
+  }, [loading, hasMore, page, fetchPage, query, category, minRating, sortBy]);
 
-  const activeFilters = (category !== 'All' ? 1 : 0) + (minRating > 0 ? 1 : 0);
+  const activeFilters = (category !== 'All' ? 1 : 0) + (minRating > 0 ? 1 : 0) + (sortBy !== 'relevance' ? 1 : 0);
+
+  const handleSearchSubmit = (q) => {
+    saveRecentSearch(q);
+    setRecentSearches(getRecentSearches());
+    setShowSuggest(false);
+  };
   const total = shops.length;
   const locationLabel = location.city ? `${location.area ? location.area + ', ' : ''}${location.city}` : 'Location not set';
   const externalQuery = searchParams.get('q') || '';
@@ -174,7 +202,8 @@ const SearchPage = () => {
                 placeholder="Search shops, areas, categories..."
                 value={query}
                 onChange={e => { setQuery(e.target.value); setShowSuggest(true); }}
-                onFocus={() => query.length >= 2 && setShowSuggest(true)}
+                onFocus={() => setShowSuggest(true)}
+                onKeyDown={e => { if (e.key === 'Enter') handleSearchSubmit(query); }}
                 aria-label="Search shops"
                 autoFocus
                 autoComplete="off"
@@ -187,26 +216,65 @@ const SearchPage = () => {
             </div>
 
             {/* Autocomplete */}
-            {showSuggest && query.length >= 2 && (
+            {showSuggest && (
               <div className="suggest-dropdown">
-                {suggestLoading ? (
-                  <div className="suggest-loading">Searching…</div>
-                ) : suggestions.length === 0 ? (
-                  <div className="suggest-empty">No results for "{query}"</div>
-                ) : suggestions.map(shop => (
-                  <button key={shop._id} className="suggest-item" onClick={() => { setShowSuggest(false); navigate(`/shop/${shop._id}`); }}>
-                    <span className="suggest-emoji">
-                      {shop.category === 'Food' ? '🍽️' : shop.category === 'Services' ? '🔧' : shop.category === 'Shops' ? '🛍️' : '📦'}
-                    </span>
-                    <span className="suggest-info">
-                      <span className="suggest-name">{shop.name}</span>
-                      <span className="suggest-meta">{shop.category} · {shop.area}, {shop.city}</span>
-                    </span>
-                    {shop.averageRating > 0 && (
-                      <span className="suggest-rating"><Star size={11} fill="var(--accent)" color="var(--accent)" /> {shop.averageRating.toFixed(1)}</span>
-                    )}
-                  </button>
-                ))}
+                {/* Recent searches (shown when query is empty) */}
+                {query.length < 2 && recentSearches.length > 0 && (
+                  <>
+                    <div className="suggest-section-label">
+                      <Clock size={12} /> Recent searches
+                    </div>
+                    {recentSearches.map(s => (
+                      <button key={s} className="suggest-item suggest-item--recent" onClick={() => { setQuery(s); handleSearchSubmit(s); }}>
+                        <span className="suggest-emoji"><Clock size={14} /></span>
+                        <span className="suggest-info">
+                          <span className="suggest-name">{s}</span>
+                        </span>
+                        <button
+                          className="suggest-remove"
+                          onClick={e => {
+                            e.stopPropagation();
+                            const updated = recentSearches.filter(r => r !== s);
+                            localStorage.setItem('qv_recent_searches', JSON.stringify(updated));
+                            setRecentSearches(updated);
+                          }}
+                          aria-label="Remove"
+                        >
+                          <X size={12} />
+                        </button>
+                      </button>
+                    ))}
+                  </>
+                )}
+
+                {/* Live suggestions */}
+                {query.length >= 2 && (
+                  suggestLoading ? (
+                    <div className="suggest-loading">Searching…</div>
+                  ) : suggestions.length === 0 ? (
+                    <div className="suggest-empty">No results for "{query}"</div>
+                  ) : (
+                    <>
+                      <div className="suggest-section-label">
+                        <Search size={12} /> Suggestions
+                      </div>
+                      {suggestions.map(shop => (
+                        <button key={shop._id} className="suggest-item" onClick={() => { handleSearchSubmit(shop.name); navigate(`/shop/${shop._id}`); }}>
+                          <span className="suggest-emoji">
+                            {shop.category === 'Food' ? '🍽️' : shop.category === 'Services' ? '🔧' : shop.category === 'Shops' ? '🛍️' : '📦'}
+                          </span>
+                          <span className="suggest-info">
+                            <span className="suggest-name">{shop.name}</span>
+                            <span className="suggest-meta">{shop.category} · {shop.area}, {shop.city}</span>
+                          </span>
+                          {shop.averageRating > 0 && (
+                            <span className="suggest-rating"><Star size={11} fill="var(--accent)" color="var(--accent)" /> {shop.averageRating.toFixed(1)}</span>
+                          )}
+                        </button>
+                      ))}
+                    </>
+                  )
+                )}
               </div>
             )}
           </div>
@@ -243,8 +311,18 @@ const SearchPage = () => {
                 ))}
               </div>
             </div>
+            <div className="filter-row">
+              <span className="filter-row-label"><ArrowUpDown size={11} style={{ display: 'inline', marginRight: 4 }} />Sort By</span>
+              <div className="filter-chips">
+                {SORT_OPTIONS.map(opt => (
+                  <button key={opt.value} className={`filter-chip ${sortBy === opt.value ? 'active' : ''}`} onClick={() => setSortBy(opt.value)}>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             {activeFilters > 0 && (
-              <button className="clear-filters" onClick={() => { setCategory('All'); setMinRating(0); }}>Clear all filters</button>
+              <button className="clear-filters" onClick={() => { setCategory('All'); setMinRating(0); setSortBy('relevance'); }}>Clear all filters</button>
             )}
           </div>
         )}

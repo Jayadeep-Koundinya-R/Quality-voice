@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getShop, getReviews, getComments, createComment, likeReview, API_URL } from '../utils/api';
+import { getShop, getReviews, getComments, createComment, likeReview, getShops, API_URL } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/common/Toast';
 import { SkeletonReviewCard } from '../components/common/SkeletonCard';
@@ -8,6 +8,8 @@ import {
   ArrowLeft, MapPin, Flag, PenLine, MessageSquare,
   Heart, Share2, X, ChevronLeft, ChevronRight, ShieldCheck, Star, TrendingUp, Camera
 } from 'lucide-react';
+import ShareButton from '../components/common/ShareButton';
+import DiscussionThreads from '../components/common/DiscussionThreads';
 import '../styles/ShopDetail.css';
 
 /* ── Lightbox ─────────────────────────────────────────────────────────────── */
@@ -70,22 +72,6 @@ const ReviewCard = ({ review: init, currentUser }) => {
     } catch {} finally { setLiking(false); }
   };
 
-  const loadComments = async () => {
-    if (showComments) { setShow(false); return; }
-    setLoadingC(true);
-    try { const { data } = await getComments(review._id); setComments(data.comments); }
-    catch { setComments([]); }
-    finally { setLoadingC(false); setShow(true); }
-  };
-
-  const handleComment = async e => {
-    e.preventDefault();
-    if (!text.trim()) return;
-    setSubmitting(true);
-    try { const { data } = await createComment({ reviewId: review._id, commentText: text }); setComments(p => [...p, data.comment]); setText(''); }
-    catch {} finally { setSubmitting(false); }
-  };
-
   const initials = review.userId?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) || '?';
 
   return (
@@ -137,25 +123,88 @@ const ReviewCard = ({ review: init, currentUser }) => {
 
         {showComments && (
           <div className="comments-wrap">
-            {comments.length === 0 && <p className="no-comments">No comments yet — be the first.</p>}
-            {comments.map(c => (
-              <div key={c._id} className="comment">
-                <div className="comment-avatar">{c.userId?.name?.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2)||'?'}</div>
-                <div className="comment-bubble">
-                  <span className="comment-author">{c.userId?.name||'User'}</span>
-                  <span className="comment-body">{c.commentText}</span>
-                </div>
-              </div>
-            ))}
-            <form className="comment-form" onSubmit={handleComment}>
-              <input className="comment-input" type="text" placeholder="Write a comment…" value={text} onChange={e=>setText(e.target.value)} maxLength={300} aria-label="Comment" />
-              <button type="submit" className="comment-send" disabled={submitting||!text.trim()} aria-label="Send"><PenLine size={13} /></button>
-            </form>
+            <DiscussionThreads reviewId={review._id} />
           </div>
         )}
       </article>
       {lbIndex !== null && <Lightbox photos={review.photos} startIndex={lbIndex} onClose={() => setLbIndex(null)} />}
     </>
+  );
+};
+
+/* ── Rating Distribution Chart ── */
+const RatingDistribution = ({ reviews }) => {
+  const counts = [5, 4, 3, 2, 1].map(star => ({
+    star,
+    count: reviews.filter(r => Math.round(r.starRating) === star).length
+  }));
+  const max = Math.max(...counts.map(c => c.count), 1);
+
+  return (
+    <div className="rating-distribution">
+      <div className="rating-distribution-title">Rating Breakdown</div>
+      {counts.map(({ star, count }) => (
+        <div key={star} className="rating-dist-row">
+          <span className="rating-dist-label">{star}</span>
+          <Star size={10} fill="var(--accent)" color="var(--accent)" />
+          <div className="rating-dist-bar-wrap">
+            <div className="rating-dist-bar" style={{ width: `${(count / max) * 100}%` }} />
+          </div>
+          <span className="rating-dist-count">{count}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+/* ── Related Shops ── */
+const RelatedShops = ({ currentShop }) => {
+  const navigate = useNavigate();
+  const [related, setRelated] = useState([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const { data } = await getShops({ category: currentShop.category, limit: 6 });
+        setRelated((data.shops || []).filter(s => s._id !== currentShop._id).slice(0, 5));
+      } catch {}
+    };
+    load();
+  }, [currentShop._id, currentShop.category]);
+
+  if (related.length === 0) return null;
+
+  return (
+    <div className="related-shops-section">
+      <h3 className="related-shops-title">
+        <TrendingUp size={16} /> Similar Places
+      </h3>
+      <div className="related-shops-scroll">
+        {related.map(shop => (
+          <div
+            key={shop._id}
+            className="related-shop-card"
+            onClick={() => navigate(`/shop/${shop._id}`)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => e.key === 'Enter' && navigate(`/shop/${shop._id}`)}
+          >
+            {shop.photos?.length > 0 ? (
+              <img src={`${API_URL}${shop.photos[0]}`} alt={shop.name} className="related-shop-img" loading="lazy" />
+            ) : (
+              <div className="related-shop-placeholder">{shop.name?.[0]?.toUpperCase()}</div>
+            )}
+            <div className="related-shop-body">
+              <div className="related-shop-name">{shop.name}</div>
+              <div className="related-shop-meta">
+                <Star size={10} fill="var(--accent)" color="var(--accent)" />
+                {shop.averageRating > 0 ? shop.averageRating.toFixed(1) : 'New'}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 
@@ -168,11 +217,33 @@ const ShopDetailPage = () => {
 
   const [shop, setShop]         = useState(null);
   const [reviews, setReviews]   = useState([]);
+  const [sortedReviews, setSortedReviews] = useState([]);
+  const [reviewSort, setReviewSort] = useState('newest');
   const [tab, setTab]           = useState('reviews');
   const [loading, setLoading]   = useState(true);
   const [revLoading, setRevLoad]= useState(true);
   const [error, setError]       = useState('');
   const [coverLb, setCoverLb]   = useState(false);
+  const [parallaxOffset, setParallaxOffset] = useState(0);
+
+  // Parallax scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const offset = window.pageYOffset;
+      setParallaxOffset(offset * 0.5);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Sort reviews when sort option or reviews change
+  useEffect(() => {
+    const sorted = [...reviews];
+    if (reviewSort === 'newest') sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    else if (reviewSort === 'highest') sorted.sort((a, b) => b.starRating - a.starRating);
+    else if (reviewSort === 'lowest') sorted.sort((a, b) => a.starRating - b.starRating);
+    setSortedReviews(sorted);
+  }, [reviews, reviewSort]);
 
   useEffect(() => {
     const load = async () => {
@@ -220,7 +291,12 @@ const ShopDetailPage = () => {
       <div className="shop-cover-wrap">
         {shop.photos?.length > 0 ? (
           <button className="shop-cover-btn" onClick={() => setCoverLb(true)} aria-label="View cover photo">
-            <img src={`${API_URL}${shop.photos[0]}`} alt={shop.name} className="shop-cover-img" />
+            <img 
+              src={`${API_URL}${shop.photos[0]}`} 
+              alt={shop.name} 
+              className="shop-cover-img" 
+              style={{ transform: `translateY(${parallaxOffset}px)` }}
+            />
           </button>
         ) : (
           <div className="shop-cover-placeholder">
@@ -275,6 +351,9 @@ const ShopDetailPage = () => {
           )}
         </div>
 
+        {/* ── Rating Distribution ── */}
+        {reviews.length > 0 && <RatingDistribution reviews={reviews} />}
+
         {/* ── Actions ── */}
         <div className="shop-actions">
           <button className="btn btn-primary" onClick={() => navigate(`/write-review/${shop._id}`)}>
@@ -283,9 +362,12 @@ const ShopDetailPage = () => {
           <button className="btn btn-danger-outline" onClick={() => navigate(`/report/${shop._id}`)}>
             <Flag size={15} /> Report
           </button>
-          <button className="btn btn-ghost btn-sm" onClick={handleShare} aria-label="Share">
-            <Share2 size={15} />
-          </button>
+          <ShareButton 
+            title="Share"
+            content={`Check out ${shop.name} on Quality Voice`}
+            url={window.location.href}
+            variant="ghost"
+          />
         </div>
 
         {/* ── Tabs ── */}
@@ -301,6 +383,26 @@ const ShopDetailPage = () => {
               <h3><TrendingUp size={16} /> Community Review Stream</h3>
               <span><Camera size={14} /> {reviews.filter(r => r.photos?.length > 0).length} with photos</span>
             </div>
+
+            {/* Sort options */}
+            {reviews.length > 1 && (
+              <div className="review-sort-row">
+                {[
+                  { value: 'newest', label: 'Newest' },
+                  { value: 'highest', label: 'Highest' },
+                  { value: 'lowest', label: 'Lowest' },
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    className={`review-sort-btn ${reviewSort === opt.value ? 'active' : ''}`}
+                    onClick={() => setReviewSort(opt.value)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {revLoading ? (
               [1,2,3].map(i => <SkeletonReviewCard key={i} />)
             ) : reviews.length === 0 ? (
@@ -310,7 +412,10 @@ const ShopDetailPage = () => {
                 <p>Be the first to review this place.</p>
                 <button className="btn btn-primary" style={{marginTop:12,maxWidth:200}} onClick={() => navigate(`/write-review/${shop._id}`)}>Write First Review</button>
               </div>
-            ) : reviews.map(r => <ReviewCard key={r._id} review={r} currentUser={user} />)}
+            ) : sortedReviews.map(r => <ReviewCard key={r._id} review={r} currentUser={user} />)}
+
+            {/* Related shops */}
+            {!revLoading && <RelatedShops currentShop={shop} />}
           </div>
         ) : (
           <div className="shop-about">

@@ -367,6 +367,107 @@
 .strength-label.medium { color: var(--warning); }
 .strength-label.strong { color: var(--success); }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+  INLINE FIELD VALIDATION STYLES
+  Real-time validation with shake animations
+  ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Form group with error state */
+.form-group.has-error input {
+  border-color: var(--danger);
+  animation: shake 0.4s ease-in-out;
+}
+
+/* Inline error message */
+.field-error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--danger);
+  font-weight: 500;
+  margin-top: 4px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Shake animation for invalid inputs */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+/* Fade in animation for error messages */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Success state for valid fields */
+.form-group.has-success input {
+  border-color: var(--success);
+}
+
+/* Focus states */
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(91, 79, 232, 0.15);
+}
+
+.form-group.has-error input:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+  OAUTH BUTTONS
+  Google and Apple sign-in buttons
+  ═══════════════════════════════════════════════════════════════════════════════ */
+
+.oauth-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.oauth-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.oauth-btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+  transform: translateY(-1px);
+}
+
+.oauth-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.oauth-btn svg {
+  flex-shrink: 0;
+}
+
+/* Mobile: stack OAuth buttons */
+@media (max-width: 480px) {
+  .oauth-buttons {
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 380px) {
   .auth-card { padding: 28px 20px; }
 }

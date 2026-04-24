@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SkeletonFeedSection, SkeletonReviewCard } from '../components/common/SkeletonCard';
-import { getFeed, markHelpful, API_URL } from '../utils/api';
+import { getFeed, markHelpful, getFollowSuggestions, API_URL } from '../utils/api';
 import { useLocation } from '../context/LocationContext';
 import { useAuth } from '../context/AuthContext';
-import { Heart, MessageSquare, Flag, Star, Plus, ArrowRight, Sparkles, TrendingUp } from 'lucide-react';
+import { Heart, MessageSquare, Flag, Star, Plus, ArrowRight, Sparkles, TrendingUp, Users } from 'lucide-react';
 import '../styles/Home.css';
+import UserFollowCard from '../components/common/UserFollowCard';
 
 /* ─── Category pills ─────────────────────────────────────────────────────────── */
 const CATEGORIES = ['All', 'Food', 'Services', 'Shops', 'Products'];
@@ -214,14 +215,57 @@ const HomePage = () => {
   const loadMoreRef = useRef(null);
   const isLoadingMoreRef = useRef(false);
 
+  // Pull-to-refresh state
+  const [pulling, setPulling] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+  const pullStartY = useRef(0);
+  const pullStartScroll = useRef(0);
+
   const [activeCategory, setActiveCategory] = useState('All');
   const [feed, setFeed] = useState({ trending: [], newShops: [], badgeShops: [], recentReviews: [] });
+  const [followingUsers, setFollowingUsers] = useState([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMoreReviews, setHasMoreReviews] = useState(false);
   const [page, setPage] = useState(1);
   const [paginationError, setPaginationError] = useState('');
   const [error, setError] = useState('');
+
+  // Pull-to-refresh handlers
+  const handleTouchStart = (e) => {
+    // Only enable pull-to-refresh when at the top of the page
+    if (window.scrollY === 0) {
+      pullStartY.current = e.touches[0].clientY;
+      pullStartScroll.current = window.scrollY;
+      setPulling(true);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (!pulling) return;
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - pullStartY.current;
+    // Only allow pulling down, not up
+    if (diff > 0) {
+      // Apply resistance factor for smoother feel
+      const distance = Math.min(diff * 0.4, 80);
+      setPullDistance(distance);
+    }
+  };
+
+  const handleTouchEnd = async () => {
+    if (!pulling) return;
+    setPulling(false);
+    
+    // If pulled far enough, trigger refresh
+    if (pullDistance > 50) {
+      setPullDistance(0);
+      await loadFeed();
+    } else {
+      setPullDistance(0);
+    }
+  };
 
   const { city } = location;
 
@@ -272,6 +316,24 @@ const HomePage = () => {
 
   useEffect(() => { if (!location.city) detectGPS(); }, []); // eslint-disable-line
   useEffect(() => { loadFeed(); }, [loadFeed]);
+  
+  // Load follow suggestions
+  useEffect(() => {
+    const loadSuggestions = async () => {
+      if (!user) return;
+      setLoadingSuggestions(true);
+      try {
+        const { data } = await getFollowSuggestions();
+        setFollowingUsers(data.suggestions || []);
+      } catch {
+        setFollowingUsers([]);
+      } finally {
+        setLoadingSuggestions(false);
+      }
+    };
+    loadSuggestions();
+  }, [user]);
+
   useEffect(() => {
     if (loading || !hasMoreReviews || !loadMoreRef.current) return undefined;
     const observer = new IntersectionObserver(
@@ -290,7 +352,36 @@ const HomePage = () => {
   const cityName = location.city || 'Your City';
 
   return (
-    <div className="home-page">
+    <div 
+      className="home-page"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Pull-to-refresh indicator */}
+      {pulling && (
+        <div 
+          className="ptr-indicator" 
+          style={{ transform: `translateY(${pullDistance}px)` }}
+        >
+          <div className={`ptr-spinner ${pullDistance > 50 ? 'ptr-spinner--ready' : ''}`}>
+            <Sparkles size={20} />
+          </div>
+          <span className="ptr-text">
+            {pullDistance > 50 ? 'Release to refresh' : 'Pull to refresh'}
+          </span>
+        </div>
+      )}
+
+      {/* Floating Action Button */}
+      <button 
+        className="fab-button" 
+        onClick={() => navigate('/write-review')}
+        aria-label="Write a review"
+      >
+        <Plus size={24} />
+      </button>
+
       {/* ── HERO ─────────────────────────────────────────────────────────────── */}
       <section className="home-hero-compact">
         <div className="content-container">
@@ -372,6 +463,47 @@ const HomePage = () => {
           )}
         </section>
 
+        {/* ── FOLLOWING USERS FEED ─────────────────────────────────────────── */}
+        {user && (
+          <section className="home-section">
+            <div className="home-section-header">
+              <h2 className="home-section-title">
+                <Users size={16} />
+                Following
+              </h2>
+              <button className="home-see-all" onClick={() => navigate('/search')}>
+                Find people <ArrowRight size={13} />
+              </button>
+            </div>
+
+            {loadingSuggestions ? (
+              <div className="home-review-skeletons">
+                {[1, 2, 3].map(i => <SkeletonReviewCard key={i} />)}
+              </div>
+            ) : followingUsers.length === 0 ? (
+              <div className="home-empty-state">
+                <p className="home-empty-title">No one to follow yet</p>
+                <p className="home-empty-sub">Search for reviewers to follow and see their activity in your feed.</p>
+                <button className="home-add-btn" onClick={() => navigate('/search')}>
+                  Find reviewers
+                </button>
+              </div>
+            ) : (
+              <div className="following-feed-list">
+                {followingUsers.map(followUser => (
+                  <UserFollowCard 
+                    key={followUser._id} 
+                    user={followUser}
+                    onFollow={() => {
+                      setFollowingUsers(prev => prev.filter(u => u._id !== followUser._id));
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
         {/* ── RECENT REVIEWS (social feed) ─────────────────────────────────── */}
         <section className="home-section" style={{ paddingBottom: 32 }}>
           <div className="home-section-header">
@@ -440,3 +572,12 @@ const HomePage = () => {
 };
 
 export default HomePage;
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { SkeletonFeedSection, SkeletonReviewCard } from '../components/common/SkeletonCard';
+import { getFeed, markHelpful, getFollowSuggestions, API_URL } from '../utils/api';
+import { useLocation } from '../context/LocationContext';
+import { useAuth } from '../context/AuthContext';
+import { Heart, MessageSquare, Flag, Star, Plus, ArrowRight, Sparkles, TrendingUp, Users } from 'lucide-react';
+import '../styles/Home.css';
+import UserFollowCard from '../components/common/UserFollowCard';

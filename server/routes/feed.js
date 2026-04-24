@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User');
 const Shop = require('../models/Shop');
 const Review = require('../models/Review');
 const { protect } = require('../middleware/auth');
@@ -103,17 +104,22 @@ router.get('/', protect, async (req, res) => {
       .limit(10)
       .lean();
 
-    // Recent reviews — social feed with true DB pagination.
-    // Constrain review query to matching shops so skip/limit are globally correct.
+    // Social feed: reviews from followed users + own reviews
+    const user = await User.findById(req.user._id).select('following');
+    const followedUserIds = user.following || [];
+    followedUserIds.push(req.user._id); // Include own reviews
+
     const filteredShops = await Shop.find(baseQuery).select('_id').lean();
     const filteredShopIds = filteredShops.map((shop) => shop._id);
-    const reviewQuery = filteredShopIds.length
-      ? { shopId: { $in: filteredShopIds } }
-      : { shopId: null };
+    
+    const socialReviewQuery = {
+      shopId: { $in: filteredShopIds },
+      userId: { $in: followedUserIds }
+    };
 
-    const [totalReviews, paginatedReviews] = await Promise.all([
-      Review.countDocuments(reviewQuery),
-      Review.find(reviewQuery)
+    const [totalSocialReviews, paginatedSocialReviews] = await Promise.all([
+      Review.countDocuments(socialReviewQuery),
+      Review.find(socialReviewQuery)
         .populate('userId', 'name avatar location')
         .populate('shopId', 'name category city area')
         .sort({ createdAt: -1 })
@@ -122,17 +128,17 @@ router.get('/', protect, async (req, res) => {
         .lean()
     ]);
 
-    const hasMore = skip + paginatedReviews.length < totalReviews;
+    const hasMore = skip + paginatedSocialReviews.length < totalSocialReviews;
 
     res.json({
       trending,
       newShops,
       badgeShops,
-      recentReviews: paginatedReviews,
+      recentReviews: paginatedSocialReviews,
       pagination: {
         page,
         limit,
-        total: totalReviews,
+        total: totalSocialReviews,
         hasMore,
         nextPage: hasMore ? page + 1 : null
       }

@@ -1,0 +1,344 @@
+/* ─── USER FOLLOW CARD ───────────────────────────────────────────────────────── */
+.user-follow-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: var(--transition);
+}
+
+.user-follow-card:hover {
+  border-color: rgba(91,79,232,0.3);
+  transform: translateY(-1px);
+}
+
+.user-follow-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.user-follow-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--grad);
+  color: white;
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.user-follow-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.user-follow-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-follow-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text1);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-follow-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.user-follow-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--text3);
+}
+
+.location-dot {
+  width: 4px;
+  height: 4px;
+  background: var(--text3);
+  border-radius: 50%;
+}
+
+.user-follow-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--amber);
+  font-weight: 600;
+}
+
+.user-follow-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.follow-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  background: var(--grad);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(91,79,232,0.3);
+}
+
+.follow-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(91,79,232,0.4);
+}
+
+.follow-btn.following {
+  background: var(--bg3);
+  color: var(--brand);
+  box-shadow: none;
+}
+
+.follow-btn.following:hover {
+  background: rgba(91,79,232,0.1);
+  transform: none;
+}
+
+.message-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg3);
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.message-btn:hover {
+  background: var(--primary-light);
+  color: var(--brand);
+}
+
+/* ─── FOLLOWERS LIST ENHANCED ────────────────────────────────────────────────── */
+.followers-list-enhanced {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.followers-list-enhanced .user-follow-card {
+  padding: 12px 14px;
+}
+
+.followers-list-enhanced .user-follow-header {
+  gap: 10px;
+}
+
+.followers-list-enhanced .user-follow-avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+}
+
+.followers-list-enhanced .user-follow-name {
+  font-size: 14px;
+}
+
+.followers-list-enhanced .user-follow-actions {
+  gap: 6px;
+}
+
+.followers-list-enhanced .follow-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.followers-list-enhanced .message-btn {
+  width: 32px;
+  height: 32px;
+}
+
+/* ─── FOLLOW SUGGESTIONS SECTION ─────────────────────────────────────────────── */
+.follow-suggestions-section {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.follow-suggestions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.follow-suggestions-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text1);
+}
+
+.follow-suggestions-title .trending-icon {
+  color: var(--brand);
+}
+
+.follow-suggestions-view-all {
+  font-size: 13px;
+  color: var(--brand);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.follow-suggestions-view-all:hover {
+  text-decoration: underline;
+}
+
+.follow-suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ─── FOLLOWING FEED ─────────────────────────────────────────────────────────── */
+.following-feed-section {
+  margin-bottom: 24px;
+}
+
+.following-feed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.following-feed-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text1);
+}
+
+.following-feed-title .users-icon {
+  color: var(--brand);
+}
+
+.following-feed-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 40px 20px;
+  border: 2px dashed var(--border);
+  border-radius: 20px;
+  background: var(--bg2);
+}
+
+.following-feed-empty-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--primary-light);
+  color: var(--brand);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.following-feed-empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text1);
+}
+
+.following-feed-empty-sub {
+  font-size: 14px;
+  color: var(--text2);
+  max-width: 40ch;
+  line-height: 1.5;
+}
+
+.following-feed-empty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--grad);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 8px;
+}
+
+.following-feed-empty-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(91,79,232,0.3);
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .user-follow-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .user-follow-header {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .user-follow-actions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .follow-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

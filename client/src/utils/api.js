@@ -60,4 +60,12 @@ export const getUnreadCount = () => API.get('/notifications/unread-count');
 export const markAllRead = () => API.put('/notifications/mark-all-read');
 export const markOneRead = (id) => API.put(`/notifications/${id}/read`);
 
+// Follow
+export const checkFollow = (userId) => API.get(`/follow/check/${userId}`);
+export const followUser = (userId) => API.post(`/follow/${userId}`);
+export const unfollowUser = (userId) => API.post(`/follow/unfollow/${userId}`);
+export const getFollowers = () => API.get('/follow/followers');
+export const getFollowing = () => API.get('/follow/following');
+export const getFollowSuggestions = () => API.get('/follow/suggestions');
+
 export default API;
