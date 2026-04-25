@@ -189,7 +189,13 @@ const TrendingCard = ({ shop }) => {
       {/* Image / gradient area */}
       <div className="trending-card-img" style={{ background: gradient }}>
         {shop.photos?.length > 0 ? (
-          <img src={`${API_URL}${shop.photos[0]}`} alt={shop.name} className="trending-card-photo" loading="lazy" />
+          <img 
+            src={`${API_URL}${shop.photos[0]}`} 
+            alt={shop.name} 
+            className="trending-card-photo" 
+            loading="lazy" 
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
         ) : (
           <span className="trending-card-initial">{initial}</span>
         )}

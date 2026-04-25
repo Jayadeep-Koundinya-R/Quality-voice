@@ -1,12 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { Mic2, Eye, EyeOff } from 'lucide-react';
 import '../styles/Auth.css';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login, needsOnboarding } = useAuth();
+  const { theme } = useTheme();
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -14,6 +16,17 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
+
+  // Force dark mode on mount
+  useEffect(() => {
+    const originalTheme = theme;
+    document.documentElement.setAttribute('data-theme', 'dark');
+    
+    return () => {
+      // Restore previous theme on unmount
+      document.documentElement.setAttribute('data-theme', originalTheme);
+    };
+  }, [theme]);
 
   // Generate floating shapes for animated background
   const floatingShapes = useMemo(() => 

@@ -13,6 +13,7 @@ const GlobalBackground = () => {
       <div className="global-orb orb-1" />
       <div className="global-orb orb-2" />
       <div className="global-orb orb-3" />
+      <div className="global-orb orb-4" />
     </div>
   );
 };

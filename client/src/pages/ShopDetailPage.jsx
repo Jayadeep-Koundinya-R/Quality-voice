@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getShop, getReviews, likeReview, getShops, API_URL } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
-import { useToast } from '../components/common/Toast';
 import { SkeletonReviewCard } from '../components/common/SkeletonCard';
 import {
   ArrowLeft, MapPin, Flag, PenLine, MessageSquare,
@@ -75,7 +74,9 @@ const ReviewCard = ({ review: init, currentUser, navigate }) => {
       <article className="review-card">
         <div className="review-header">
           <div className="review-avatar">
-            {review.userId?.avatar ? <img src={`${API_URL}${review.userId.avatar}`} alt="" /> : initials}
+            {review.userId?.avatar 
+              ? <img src={`${API_URL}${review.userId.avatar}`} alt="" onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = initials; }} /> 
+              : initials}
           </div>
           <div className="review-meta">
             <button 
@@ -103,7 +104,7 @@ const ReviewCard = ({ review: init, currentUser, navigate }) => {
           <div className="review-photos">
             {review.photos.map((p, i) => (
               <button key={i} className="review-photo-btn" onClick={() => setLbIndex(i)} aria-label={`View photo ${i+1}`}>
-                <img src={`${API_URL}${p}`} alt="" className="review-photo" loading="lazy" />
+                <img src={`${API_URL}${p}`} alt="" className="review-photo" loading="lazy" onError={(e) => e.target.parentElement.style.display = 'none'} />
               </button>
             ))}
           </div>
@@ -212,8 +213,6 @@ const ShopDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
-  // eslint-disable-next-line no-unused-vars
-  const toast = useToast();
 
   const [shop, setShop]         = useState(null);
   const [reviews, setReviews]   = useState([]);
@@ -288,6 +287,7 @@ const ShopDetailPage = () => {
               alt={shop.name} 
               className="shop-cover-img" 
               style={{ transform: `translateY(${parallaxOffset}px)` }}
+              onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.classList.add('hide'); }}
             />
           </button>
         ) : (

@@ -1,6 +1,7 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { Mic2, Eye, EyeOff } from 'lucide-react';
 import '../styles/Auth.css';
 
@@ -41,6 +42,7 @@ const validateMobile = (mobile) => {
 const SignupPage = () => {
   const navigate = useNavigate();
   const { signup } = useAuth();
+  const { theme } = useTheme();
 
   const [form, setForm] = useState({ name: '', email: '', password: '', mobile: '' });
   const [touched, setTouched] = useState({ name: false, email: false, password: false, mobile: false });
@@ -48,6 +50,17 @@ const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Force dark mode on mount
+  useEffect(() => {
+    const originalTheme = theme;
+    document.documentElement.setAttribute('data-theme', 'dark');
+    
+    return () => {
+      // Restore previous theme on unmount
+      document.documentElement.setAttribute('data-theme', originalTheme);
+    };
+  }, [theme]);
 
   const strength = getPasswordStrength(form.password);
 

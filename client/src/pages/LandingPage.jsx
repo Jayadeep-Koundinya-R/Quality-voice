@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 import { ShieldCheck, Star, MapPin, Mic2, ArrowRight, Sparkles, Users, Building2, Search, MessageSquare, Award, Heart, Quote, ChevronLeft, ChevronRight, Target, TrendingUp, SearchCheck, PenLine, BadgeCheck, Mail, ExternalLink } from 'lucide-react';
 import '../styles/Landing.css';
 
@@ -628,7 +629,19 @@ const HowItWorksSection = () => {
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
+
+  // Force dark mode on mount
+  useEffect(() => {
+    const originalTheme = theme;
+    document.documentElement.setAttribute('data-theme', 'dark');
+    
+    return () => {
+      // Restore previous theme on unmount
+      document.documentElement.setAttribute('data-theme', originalTheme);
+    };
+  }, [theme]);
 
   useEffect(() => {
     // Trigger entrance animations after mount

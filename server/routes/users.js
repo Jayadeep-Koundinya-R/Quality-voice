@@ -32,9 +32,9 @@ router.put('/profile', protect, upload.single('avatar'), async (req, res) => {
     if (mobile) updateData.mobile = mobile;
     if (city || district || area) {
       updateData.location = {
-        city: city || req.user.location.city,
-        district: district || req.user.location.district,
-        area: area || req.user.location.area
+        city: city || (req.user.location ? req.user.location.city : ''),
+        district: district || (req.user.location ? req.user.location.district : ''),
+        area: area || (req.user.location ? req.user.location.area : '')
       };
     }
     if (req.file) {

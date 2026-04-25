@@ -35,8 +35,15 @@ const ProfilePage = () => {
   const [avatarPreview, setPreview] = useState('');
   const [saving, setSaving]         = useState(false);
   const [saveError, setSaveError]   = useState('');
+  const [isVisible, setIsVisible]   = useState(false);
 
   const isOwnProfile = !id || id === currentUser?._id || id?.toString() === currentUser?._id?.toString();
+
+  useEffect(() => {
+    setIsVisible(false);
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, [id]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,8 +127,10 @@ const ProfilePage = () => {
 
   const handleLogout = () => { logout(); navigate('/'); };
 
+  const [avatarError, setAvatarError] = useState(false);
+
   return (
-    <div className="profile-page">
+    <div className={`profile-page ${isVisible ? 'visible' : ''}`}>
 
       {/* ── HERO CARD ────────────────────────────────────────────────────── */}
       <div className="profile-hero-card">
@@ -129,8 +138,12 @@ const ProfilePage = () => {
         <div className="profile-hero-body">
           <div className="profile-avatar-wrap">
             <div className="profile-avatar-ring">
-              {targetUser?.avatar
-                ? <img src={`${API_URL}${targetUser.avatar}`} alt={targetUser.name} />
+              {targetUser?.avatar && !avatarError
+                ? <img 
+                    src={`${API_URL}${targetUser.avatar}`} 
+                    alt={targetUser.name} 
+                    onError={() => setAvatarError(true)}
+                  />
                 : <span>{initials}</span>}
             </div>
           </div>

@@ -4239,42 +4239,53 @@ pre, .pre {
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  opacity: 0.35;
-  filter: blur(80px);
+  opacity: 0.45;
+  filter: blur(100px);
 }
 
 .global-orb {
   position: absolute;
   border-radius: 50%;
-  animation: orbFloat 20s ease-in-out infinite;
+  animation: orbFloat 25s ease-in-out infinite;
+  mix-blend-mode: screen;
 }
 
 .orb-1 {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, var(--color-primary-300) 0%, transparent 70%);
-  top: -100px;
-  right: -100px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--color-primary-400) 0%, transparent 70%);
+  top: -150px;
+  right: -150px;
 }
 
 .orb-2 {
-  width: 350px;
-  height: 350px;
-  background: radial-gradient(circle, var(--color-secondary-300) 0%, transparent 70%);
-  bottom: -50px;
-  left: -100px;
-  animation-delay: -5s;
-  animation-duration: 25s;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--color-secondary-400) 0%, transparent 70%);
+  bottom: -100px;
+  left: -150px;
+  animation-delay: -7s;
+  animation-duration: 30s;
 }
 
 .orb-3 {
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, var(--color-info-300) 0%, transparent 70%);
-  top: 40%;
-  left: 20%;
-  animation-delay: -10s;
-  animation-duration: 22s;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, var(--color-info-400) 0%, transparent 70%);
+  top: 30%;
+  left: 10%;
+  animation-delay: -12s;
+  animation-duration: 28s;
+}
+
+.orb-4 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, var(--color-success-400) 0%, transparent 70%);
+  bottom: 20%;
+  right: 15%;
+  animation-delay: -4s;
+  animation-duration: 35s;
 }
 
 /* Enhanced Button Interactivity */
