@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getShop, getReviews, getComments, createComment, likeReview, getShops, API_URL } from '../utils/api';
+import { getShop, getReviews, likeReview, getShops, API_URL } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/common/Toast';
 import { SkeletonReviewCard } from '../components/common/SkeletonCard';
 import {
   ArrowLeft, MapPin, Flag, PenLine, MessageSquare,
-  Heart, Share2, X, ChevronLeft, ChevronRight, ShieldCheck, Star, TrendingUp, Camera
+  Heart, X, ChevronLeft, ChevronRight, ShieldCheck, Star, TrendingUp, Camera
 } from 'lucide-react';
 import ShareButton from '../components/common/ShareButton';
 import DiscussionThreads from '../components/common/DiscussionThreads';
@@ -51,13 +51,9 @@ const Stars = ({ rating, size = 14 }) => (
 );
 
 /* ── Review Card ──────────────────────────────────────────────────────────── */
-const ReviewCard = ({ review: init, currentUser }) => {
+const ReviewCard = ({ review: init, currentUser, navigate }) => {
   const [review, setReview]         = useState(init);
   const [showComments, setShow]     = useState(false);
-  const [comments, setComments]     = useState([]);
-  const [text, setText]             = useState('');
-  const [loadingC, setLoadingC]     = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [lbIndex, setLbIndex]       = useState(null);
   const [liking, setLiking]         = useState(false);
 
@@ -82,8 +78,12 @@ const ReviewCard = ({ review: init, currentUser }) => {
             {review.userId?.avatar ? <img src={`${API_URL}${review.userId.avatar}`} alt="" /> : initials}
           </div>
           <div className="review-meta">
-            <div className="review-author">
+            <button 
+              className="review-author-link" 
+              onClick={() => navigate(`/profile/${review.userId?._id}`)}
+            >
               {review.userId?.name || 'Anonymous'}
+            </button>
               {review.userId?.isVerifiedBadge && (
                 <span className="badge badge-primary" style={{fontSize:10,padding:'2px 6px'}}>Govt</span>
               )}
@@ -92,8 +92,7 @@ const ReviewCard = ({ review: init, currentUser }) => {
                   ✈ Traveller from {review.reviewerHomeCity}
                 </span>
               )}
-            </div>
-            <div className="review-date">{new Date(review.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>
+            <div className="review-date">{new Date(review.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
           </div>
           <Stars rating={review.starRating} size={13} />
         </div>
@@ -115,9 +114,9 @@ const ReviewCard = ({ review: init, currentUser }) => {
             <Heart size={14} fill={isLiked ? 'currentColor' : 'none'} />
             {review.likeCount > 0 ? review.likeCount : ''} {isLiked ? 'Liked' : 'Like'}
           </button>
-          <button className="review-action" onClick={loadComments}>
+          <button className="review-action" onClick={() => setShow(p => !p)}>
             <MessageSquare size={14} />
-            {loadingC ? 'Loading…' : showComments ? 'Hide' : 'Comment'}
+            {showComments ? 'Hide' : 'Comment'}
           </button>
         </div>
 
@@ -212,7 +211,8 @@ const RelatedShops = ({ currentShop }) => {
 const ShopDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user: currentUser } = useAuth();
+  // eslint-disable-next-line no-unused-vars
   const toast = useToast();
 
   const [shop, setShop]         = useState(null);
@@ -258,15 +258,7 @@ const ShopDetailPage = () => {
     load();
   }, [id]);
 
-  const handleShare = async () => {
-    const url = window.location.href;
-    if (navigator.share) {
-      try { await navigator.share({ title: shop?.name, url }); } catch {}
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast.success('Link copied to clipboard!');
-    }
-  };
+
 
   if (loading) return (
     <div className="shop-detail-page">
@@ -412,7 +404,7 @@ const ShopDetailPage = () => {
                 <p>Be the first to review this place.</p>
                 <button className="btn btn-primary" style={{marginTop:12,maxWidth:200}} onClick={() => navigate(`/write-review/${shop._id}`)}>Write First Review</button>
               </div>
-            ) : sortedReviews.map(r => <ReviewCard key={r._id} review={r} currentUser={user} />)}
+            ) : sortedReviews.map(r => <ReviewCard key={r._id} review={r} currentUser={currentUser} navigate={navigate} />)}
 
             {/* Related shops */}
             {!revLoading && <RelatedShops currentShop={shop} />}

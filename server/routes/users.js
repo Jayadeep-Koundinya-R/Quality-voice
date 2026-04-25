@@ -60,7 +60,12 @@ router.get('/:id', protect, async (req, res) => {
       '-password -email -mobile'
     );
     if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json({ user });
+
+    const reviews = await Review.find({ userId: req.params.id })
+      .populate('shopId', 'name category city')
+      .sort({ createdAt: -1 });
+
+    res.json({ user, reviews });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }

@@ -108,10 +108,6 @@ const SignupPage = () => {
     })), []
   );
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setError('');
-  };
 
   const handleSignup = async (e) => {
     e.preventDefault();

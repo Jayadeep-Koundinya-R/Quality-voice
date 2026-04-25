@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { checkFollow, followUser, unfollowUser, API_URL } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
-import { UserPlus, UserCheck, UserX, MessageSquare, Star } from 'lucide-react';
+import { UserPlus, UserCheck, MessageSquare, Star } from 'lucide-react';
 import { useToast } from './Toast';
 
 const UserFollowCard = ({ user, onFollow, onUnfollow }) => {

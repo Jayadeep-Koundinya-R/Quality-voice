@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { getComments, createComment, API_URL } from '../../utils/api';
+import React, { useState, useEffect, useCallback } from 'react';
+import { getComments, createComment } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
-import { MessageSquare, Send, User, ChevronDown, ChevronUp } from 'lucide-react';
+import { MessageSquare, Send } from 'lucide-react';
 import { useToast } from './Toast';
 
 const DiscussionThreads = ({ reviewId }) => {
@@ -13,11 +13,7 @@ const DiscussionThreads = ({ reviewId }) => {
   const [submitting, setSubmitting] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
-  useEffect(() => {
-    loadComments();
-  }, [reviewId]);
-
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await getComments(reviewId);
@@ -28,7 +24,12 @@ const DiscussionThreads = ({ reviewId }) => {
     } finally {
       setLoading(false);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reviewId]);
+
+  useEffect(() => {
+    loadComments();
+  }, [loadComments]);
 
   const handleComment = async (e) => {
     e.preventDefault();

@@ -140,6 +140,7 @@ const SocialProofCard = ({ stat, isVisible, index }) => {
 
 // Social Proof Section Component
 const SocialProofSection = () => {
+  const navigate = useNavigate();
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -191,7 +192,7 @@ const SocialProofSection = () => {
           <Target size={20} />
           <span>Ready to make your voice heard?</span>
         </div>
-        <button className="social-proof-cta-button" onClick={() => window.location.href = '/signup'}>
+        <button className="social-proof-cta-button" onClick={() => navigate('/signup')}>
           Get Started <ArrowRight size={16} />
         </button>
       </div>
@@ -573,6 +574,7 @@ const Footer = () => {
 
 // How It Works Section Component
 const HowItWorksSection = () => {
+  const navigate = useNavigate();
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -616,7 +618,7 @@ const HowItWorksSection = () => {
       </div>
 
       <div className={`how-it-works-cta ${isVisible ? 'visible' : ''}`}>
-        <button className="how-it-works-cta-button" onClick={() => window.location.href = '/signup'}>
+        <button className="how-it-works-cta-button" onClick={() => navigate('/signup')}>
           Start Exploring <ArrowRight size={18} />
         </button>
       </div>

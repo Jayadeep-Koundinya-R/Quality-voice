@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import {
   Moon, Sun, Bell, Shield, Globe, ChevronRight,
-  Info, LogOut, Trash2, Lock, Heart
+  Info, LogOut, Trash2, Lock, Heart, Sparkles
 } from 'lucide-react';
 import '../styles/Settings.css';
 
@@ -83,6 +83,21 @@ const SettingsPage = () => {
             <div className="settings-profile-email">{user?.email}</div>
           </div>
           <ChevronRight size={16} color="var(--text3)" />
+        </div>
+
+        {/* ── PREMIUM UPGRADE ────────────────────────────────────────────── */}
+        <div className="settings-premium-card" onClick={() => navigate('/premium')}>
+          <div className="premium-card-glow" />
+          <div className="premium-card-content">
+            <div className="premium-card-icon">
+              <Sparkles size={20} fill="white" />
+            </div>
+            <div className="premium-card-info">
+              <div className="premium-card-title">QualityVoice Premium</div>
+              <div className="premium-card-desc">Ad-free, exclusive badges & advanced tools</div>
+            </div>
+            <div className="premium-card-badge">PRO</div>
+          </div>
         </div>
 
         {/* ── APPEARANCE ─────────────────────────────────────────────────── */}

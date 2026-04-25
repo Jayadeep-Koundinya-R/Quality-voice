@@ -25,6 +25,7 @@ export const login = (data) => API.post('/auth/login', data);
 
 // Users
 export const getProfile = () => API.get('/users/profile');
+export const getUserProfile = (id) => API.get(`/users/${id}`);
 export const updateProfile = (data) => API.put('/users/profile', data);
 
 // Shops

@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { getShops, getReports, giveBadge, removeBadge, updateReportStatus, API_URL } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/common/Toast';
+import { 
+  ArrowLeft, LayoutDashboard, ShieldCheck, AlertCircle, 
+  Users, Store, BarChart3, Clock, Settings, 
+  MoreHorizontal, CheckCircle2, XCircle, Search, 
+  TrendingUp, TrendingDown, Flag, Star
+} from 'lucide-react';
 import '../styles/global.css';
 import '../styles/Dashboard.css';
 
@@ -83,197 +89,208 @@ const DashboardPage = () => {
   const badgeShops = shops.filter((s) => s.hasGovtBadge);
 
   return (
-    <div style={{background:'var(--bg-page)',minHeight:'100vh',paddingBottom:48}}>
-      <main className="dashboard-page">
-        {/* Header */}
-        <div className="dashboard-header">
-          <button
-            onClick={() => navigate(-1)}
-            style={{ background: 'none', border: 'none', color: 'white', fontSize: 20, cursor: 'pointer', marginBottom: 8 }}
-            aria-label="Go back"
-          >
-            ←
-          </button>
-          <h1>🏛️ Govt Dashboard</h1>
-          <p>
-            {user?.role === 'admin' ? 'Admin' : 'Govt Official'} · {user?.name}
-          </p>
+    <div className="dashboard-page-container">
+      {/* Sidebar - Desktop Only Concept */}
+      <aside className="dashboard-sidebar">
+        <div className="sidebar-header">
+          <div className="logo-icon"><ShieldCheck size={24} /></div>
+          <span>Admin Panel</span>
         </div>
+        <nav className="sidebar-nav">
+          <button className={activeTab === 'shops' ? 'active' : ''} onClick={() => setActiveTab('shops')}>
+            <Store size={18} /> Shops
+          </button>
+          <button className={activeTab === 'reports' ? 'active' : ''} onClick={() => setActiveTab('reports')}>
+            <Flag size={18} /> Reports {pendingReports.length > 0 && <span className="notif-dot" />}
+          </button>
+          <button className={activeTab === 'users' ? 'active' : ''} onClick={() => setActiveTab('users')}>
+            <Users size={18} /> Users
+          </button>
+          <button className={activeTab === 'analytics' ? 'active' : ''} onClick={() => setActiveTab('analytics')}>
+            <BarChart3 size={18} /> Analytics
+          </button>
+        </nav>
+      </aside>
 
-        {error && <div className="error-msg" style={{ margin: '0 16px' }}>{error}</div>}
-
-        {/* Stats */}
-        <div className="dashboard-stats">
-          <div className="dashboard-stat-card">
-            <div className="dashboard-stat-value">{shops.length}</div>
-            <div className="dashboard-stat-label">Total Shops</div>
-          </div>
-          <div className="dashboard-stat-card">
-            <div className="dashboard-stat-value" style={{ color: 'var(--success)' }}>
-              {badgeShops.length}
+      <main className="dashboard-main">
+        {/* Top Header */}
+        <header className="dashboard-top-header">
+          <div className="header-left">
+            <button className="mobile-back" onClick={() => navigate(-1)}><ArrowLeft size={20} /></button>
+            <div>
+              <h1>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h1>
+              <p className="header-sub">Manage system data and moderation</p>
             </div>
-            <div className="dashboard-stat-label">Verified</div>
           </div>
-          <div className="dashboard-stat-card">
-            <div className="dashboard-stat-value" style={{ color: 'var(--warning)' }}>
-              {pendingReports.length}
+          <div className="header-right">
+            <div className="admin-user-pill">
+              <div className="avatar-small">{user?.name?.[0]}</div>
+              <span>{user?.name}</span>
             </div>
-            <div className="dashboard-stat-label">Pending Reports</div>
           </div>
-        </div>
+        </header>
 
-        {/* Tabs */}
-        <div className="dashboard-tabs" role="tablist">
-          <button
-            className={`dashboard-tab ${activeTab === 'shops' ? 'active' : ''}`}
-            onClick={() => setActiveTab('shops')}
-            role="tab"
-            aria-selected={activeTab === 'shops'}
-          >
-            All Shops
-          </button>
-          <button
-            className={`dashboard-tab ${activeTab === 'reports' ? 'active' : ''}`}
-            onClick={() => setActiveTab('reports')}
-            role="tab"
-            aria-selected={activeTab === 'reports'}
-          >
-            Reports {pendingReports.length > 0 && `(${pendingReports.length})`}
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="spinner-container">
-            <div className="spinner" />
+        {/* Quick Stats Grid */}
+        <section className="stats-grid">
+          <div className="stat-box">
+            <div className="stat-info">
+              <span className="stat-label">Total Shops</span>
+              <span className="stat-value">{shops.length}</span>
+            </div>
+            <div className="stat-icon" style={{ background: 'rgba(91, 79, 232, 0.1)', color: 'var(--brand)' }}>
+              <Store size={22} />
+            </div>
           </div>
-        ) : activeTab === 'shops' ? (
-          <div className="dashboard-list" role="tabpanel">
-            {shops.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-icon">🏪</div>
-                <h3>No shops yet</h3>
-              </div>
-            ) : (
-              shops.map((shop) => (
-                <div key={shop._id} className="dashboard-shop-card">
-                  <div className="dashboard-shop-top">
-                    <div>
-                      <div className="dashboard-shop-name">{shop.name}</div>
-                      <div className="dashboard-shop-meta">
-                        {shop.category} · {shop.area}, {shop.city}
-                      </div>
+          <div className="stat-box">
+            <div className="stat-info">
+              <span className="stat-label">Verified Shops</span>
+              <span className="stat-value">{badgeShops.length}</span>
+            </div>
+            <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--green)' }}>
+              <ShieldCheck size={22} />
+            </div>
+          </div>
+          <div className="stat-box">
+            <div className="stat-info">
+              <span className="stat-label">Pending Reports</span>
+              <span className="stat-value">{pendingReports.length}</span>
+            </div>
+            <div className="stat-icon" style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--red)' }}>
+              <AlertCircle size={22} />
+            </div>
+          </div>
+        </section>
+
+        {/* Tab Content */}
+        <div className="dashboard-content-card">
+          {/* Mobile Tabs */}
+          <div className="mobile-tabs">
+            {['shops', 'reports', 'users', 'analytics'].map(t => (
+              <button key={t} className={activeTab === t ? 'active' : ''} onClick={() => setActiveTab(t)}>
+                {t === 'shops' && <Store size={16} />}
+                {t === 'reports' && <Flag size={16} />}
+                {t === 'users' && <Users size={16} />}
+                {t === 'analytics' && <BarChart3 size={16} />}
+                <span>{t}</span>
+              </button>
+            ))}
+          </div>
+
+          {loading ? (
+            <div className="dashboard-loader">
+              <div className="spinner" />
+              <p>Fetching latest data...</p>
+            </div>
+          ) : activeTab === 'shops' ? (
+            <div className="data-table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Shop Name</th>
+                    <th>Category</th>
+                    <th>Location</th>
+                    <th>Rating</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {shops.map(shop => (
+                    <tr key={shop._id}>
+                      <td><span className="font-bold">{shop.name}</span></td>
+                      <td><span className="badge-outline">{shop.category}</span></td>
+                      <td>{shop.city}</td>
+                      <td>
+                        <div className="flex items-center gap-1">
+                          <Star size={12} fill="var(--accent)" color="var(--accent)" />
+                          <span>{shop.averageRating?.toFixed(1) || '0.0'}</span>
+                        </div>
+                      </td>
+                      <td>
+                        {shop.hasGovtBadge ? 
+                          <span className="status-pill success"><CheckCircle2 size={12} /> Verified</span> : 
+                          <span className="status-pill neutral">Standard</span>
+                        }
+                      </td>
+                      <td>
+                        <div className="table-actions">
+                          {shop.hasGovtBadge ? (
+                            <button className="action-btn remove" onClick={() => handleRemoveBadge(shop._id)} disabled={actionLoading.includes(shop._id)}>
+                              Revoke
+                            </button>
+                          ) : (
+                            <button className="action-btn approve" onClick={() => handleGiveBadge(shop._id)} disabled={actionLoading.includes(shop._id)}>
+                              Verify
+                            </button>
+                          )}
+                          <button className="action-btn view" onClick={() => navigate(`/shop/${shop._id}`)}>Details</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : activeTab === 'reports' ? (
+            <div className="reports-grid">
+              {reports.map(report => (
+                <div key={report._id} className={`report-item-card ${report.status}`}>
+                  <div className="report-item-header">
+                    <div className="report-item-meta">
+                      <span className="report-date">{new Date(report.createdAt).toLocaleDateString()}</span>
+                      <span className={`report-badge ${report.status}`}>{report.status}</span>
                     </div>
-                    {shop.hasGovtBadge && (
-                      <span className="govt-badge">✅ Verified</span>
-                    )}
+                    <button className="more-btn"><MoreHorizontal size={16} /></button>
                   </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-dark)' }}>
-                      {shop.averageRating > 0 ? `⭐ ${shop.averageRating.toFixed(1)}` : 'No ratings'}
-                    </span>
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                      · {shop.totalReviews} review{shop.totalReviews !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-
-                  <div className="dashboard-shop-actions">
-                    <button
-                      className="btn-primary"
-                      style={{ fontSize: 13, padding: '8px 12px' }}
-                      onClick={() => navigate(`/shop/${shop._id}`)}
-                    >
-                      View Shop
-                    </button>
-                    {shop.hasGovtBadge ? (
-                      <button
-                        className="btn-remove-badge"
-                        onClick={() => handleRemoveBadge(shop._id)}
-                        disabled={actionLoading === shop._id + '_remove'}
-                      >
-                        {actionLoading === shop._id + '_remove' ? '...' : '❌ Remove Badge'}
-                      </button>
-                    ) : (
-                      <button
-                        className="btn-give-badge"
-                        onClick={() => handleGiveBadge(shop._id)}
-                        disabled={actionLoading === shop._id + '_give'}
-                      >
-                        {actionLoading === shop._id + '_give' ? '...' : '✅ Give Badge'}
-                      </button>
-                    )}
+                  <h3 className="report-item-title">{report.shopId?.name || 'Unknown Shop'}</h3>
+                  <p className="report-item-reason">{report.reason}</p>
+                  <p className="report-item-desc">{report.description}</p>
+                  <div className="report-item-footer">
+                    <div className="reporter-info">By {report.userId?.name}</div>
+                    <div className="report-item-actions">
+                      {report.status === 'pending' && (
+                        <button className="btn-success-small" onClick={() => handleMarkReviewed(report._id)}>Resolve</button>
+                      )}
+                      <button className="btn-outline-small" onClick={() => navigate(`/shop/${report.shopId?._id}`)}>View Shop</button>
+                    </div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
-        ) : (
-          <div className="dashboard-list" role="tabpanel">
-            {reports.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-icon">📋</div>
-                <h3>No reports yet</h3>
-                <p>All clear! No shops have been reported.</p>
-              </div>
-            ) : (
-              reports.map((report) => (
-                <div
-                  key={report._id}
-                  className={`report-card ${report.status === 'reviewed' ? 'reviewed' : ''}`}
-                >
-                  <div className="report-card-header">
-                    <div>
-                      <div className="report-shop-name">
-                        {report.shopId?.name || 'Unknown Shop'}
-                      </div>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                        {report.shopId?.city} · {report.shopId?.category}
-                      </div>
-                    </div>
-                    <span className={`report-status-badge ${report.status}`}>
-                      {report.status === 'pending' ? '⏳ Pending' : '✅ Reviewed'}
-                    </span>
+              ))}
+              {reports.length === 0 && <div className="empty-dash">No reports to display</div>}
+            </div>
+          ) : activeTab === 'users' ? (
+            <div className="placeholder-section">
+              <Users size={48} className="opacity-20" />
+              <h3>User Management coming soon</h3>
+              <p>Advanced controls for user roles, verification, and moderation.</p>
+            </div>
+          ) : (
+            <div className="analytics-section">
+              <div className="analytics-grid">
+                <div className="analytics-card">
+                  <h4>Growth</h4>
+                  <div className="flex items-end gap-2">
+                    <span className="text-3xl font-bold">+12%</span>
+                    <span className="text-green-500 flex items-center text-sm mb-1"><TrendingUp size={14} /> 2.4%</span>
                   </div>
-
-                  <div className="report-reason">{report.reason}</div>
-                  <div className="report-description">{report.description}</div>
-
-                  {report.photo && (
-                    <img
-                      src={`${API_URL}${report.photo}`}
-                      alt="Report evidence"
-                      style={{ maxHeight: 150, borderRadius: 'var(--radius-sm)', marginBottom: 8 }}
-                    />
-                  )}
-
-                  <div className="report-meta">
-                    Reported by {report.userId?.name || 'User'} ·{' '}
-                    {new Date(report.createdAt).toLocaleDateString('en-IN')}
-                  </div>
-
-                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                    <button
-                      className="btn-primary"
-                      style={{ fontSize: 13, padding: '8px 12px' }}
-                      onClick={() => navigate(`/shop/${report.shopId?._id}`)}
-                    >
-                      View Shop
-                    </button>
-                    {report.status === 'pending' && (
-                      <button
-                        className="btn-mark-reviewed"
-                        onClick={() => handleMarkReviewed(report._id)}
-                        disabled={actionLoading === report._id}
-                      >
-                        {actionLoading === report._id ? '...' : '✓ Mark Reviewed'}
-                      </button>
-                    )}
-                  </div>
+                  <p className="text-xs text-slate-500 mt-2">New users this week</p>
                 </div>
-              ))
-            )}
-          </div>
-        )}
+                <div className="analytics-card">
+                  <h4>Engagement</h4>
+                  <div className="flex items-end gap-2">
+                    <span className="text-3xl font-bold">84%</span>
+                    <span className="text-green-500 flex items-center text-sm mb-1"><TrendingUp size={14} /> 5.1%</span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-2">Review completion rate</p>
+                </div>
+              </div>
+              <div className="chart-placeholder">
+                <BarChart3 size={48} className="opacity-10" />
+                <span>Interactive Charts Integration (Phase 5)</span>
+              </div>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

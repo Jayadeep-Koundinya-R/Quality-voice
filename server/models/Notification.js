@@ -17,7 +17,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['comment', 'like', 'badge', 'report_reviewed'],
+      enum: ['comment', 'like', 'badge', 'report_reviewed', 'follow', 'mention'],
       required: true
     },
     // Context references

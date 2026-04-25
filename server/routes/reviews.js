@@ -19,6 +19,8 @@ router.get('/:shopId', protect, async (req, res) => {
   }
 });
 
+const { handleMentions } = require('../utils/mentionHandler');
+
 // POST /api/reviews — create a review
 router.post('/', protect, upload.array('photos', 5), async (req, res) => {
   try {
@@ -57,6 +59,9 @@ router.post('/', protect, upload.array('photos', 5), async (req, res) => {
       isTravellerReview,
       reviewerHomeCity: isTravellerReview ? userHomeCity.trim() : ''
     });
+
+    // Handle user mentions
+    await handleMentions(reviewText, req.user._id, review._id, shopId, 'mention');
 
     // Recalculate average rating
     const allReviews = await Review.find({ shopId });

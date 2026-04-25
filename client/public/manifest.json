@@ -1,25 +1,50 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "QualityVoice",
+  "name": "QualityVoice — Your Voice, Real Change",
+  "description": "India's location-based community review platform for local shops, restaurants, and services.",
   "icons": [
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "type": "image/x-icon",
+      "purpose": "any"
     },
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/home",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "orientation": "portrait",
+  "theme_color": "#5B4FE8",
+  "background_color": "#F8FAFC",
+  "categories": ["lifestyle", "social", "food"],
+  "lang": "en-IN",
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Write a Review",
+      "short_name": "Review",
+      "description": "Share your experience about a local shop",
+      "url": "/write-review",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Search Shops",
+      "short_name": "Search",
+      "description": "Find shops and services near you",
+      "url": "/search",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    }
+  ]
 }

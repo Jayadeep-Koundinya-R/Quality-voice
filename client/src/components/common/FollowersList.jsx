@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getFollowers, getFollowing, getFollowSuggestions, API_URL } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
-import { Users, UserPlus, TrendingUp, ChevronRight } from 'lucide-react';
+import { Users, TrendingUp, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const FollowersList = ({ type = 'followers', userId }) => {

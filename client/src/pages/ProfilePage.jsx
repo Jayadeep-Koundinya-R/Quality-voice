@@ -1,49 +1,107 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/common/Toast';
-import { getProfile, updateProfile, API_URL } from '../utils/api';
+import { getProfile, updateProfile, getUserProfile, followUser, unfollowUser, checkFollow, API_URL } from '../utils/api';
 import {
   ShieldCheck, LayoutDashboard, MapPin,
   Upload, Star, Settings, Edit2, Plus, DoorOpen, ChevronRight,
-  MessageSquare, TrendingUp, Users, UserPlus
+  MessageSquare, TrendingUp, UserPlus, X
 } from 'lucide-react';
 import FollowersList from '../components/common/FollowersList';
+import InviteFriends from '../components/common/InviteFriends';
+import { Gift } from 'lucide-react';
 import '../styles/Profile.css';
 
 const ProfilePage = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { user, logout, refreshUser } = useAuth();
+  const { user: currentUser, logout, refreshUser } = useAuth();
   const toast = useToast();
 
+  const [targetUser, setTargetUser] = useState(null);
   const [reviews, setReviews]       = useState([]);
   const [loading, setLoading]       = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
   const [showEdit, setShowEdit]     = useState(false);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
+  const [showInvite, setShowInvite] = useState(false);
   const [editForm, setEditForm]     = useState({
-    name: user?.name || '', mobile: user?.mobile || '',
-    city: user?.location?.city || '', district: user?.location?.district || '', area: user?.location?.area || ''
+    name: '', mobile: '',
+    city: '', district: '', area: ''
   });
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setPreview] = useState('');
   const [saving, setSaving]         = useState(false);
   const [saveError, setSaveError]   = useState('');
 
-  useEffect(() => {
-    getProfile()
-      .then(({ data }) => setReviews(data.reviews || []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+  const isOwnProfile = !id || id === currentUser?._id || id?.toString() === currentUser?._id?.toString();
 
-  const initials = user?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        if (isOwnProfile) {
+          const { data } = await getProfile();
+          setTargetUser(data.user);
+          setReviews(data.reviews || []);
+          setEditForm({
+            name: data.user.name || '',
+            mobile: data.user.mobile || '',
+            city: data.user.location?.city || '',
+            district: data.user.location?.district || '',
+            area: data.user.location?.area || ''
+          });
+        } else {
+          const { data } = await getUserProfile(id);
+          setTargetUser(data.user);
+          setReviews(data.reviews || []);
+          
+          const followCheck = await checkFollow(id);
+          setIsFollowing(followCheck.data.isFollowing);
+        }
+      } catch (err) {
+        toast.error('Failed to load profile');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, isOwnProfile, refreshUser]);
+
+  const handleFollow = async () => {
+    if (!currentUser || followLoading) return;
+    setFollowLoading(true);
+    try {
+      if (isFollowing) {
+        await unfollowUser(id);
+        setIsFollowing(false);
+        toast.success('Unfollowed user');
+      } else {
+        await followUser(id);
+        setIsFollowing(true);
+        toast.success('Following user');
+      }
+      // Refresh to update follower count
+      const { data } = await getUserProfile(id);
+      setTargetUser(data.user);
+    } catch (err) {
+      toast.error('Failed to update follow status');
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
+  const initials = targetUser?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
   const avgRating = reviews.length > 0
     ? (reviews.reduce((s, r) => s + r.starRating, 0) / reviews.length).toFixed(1)
     : '—';
   const shopsCount = new Set(reviews.map(r => r.shopId?._id)).size;
-  const followersCount = user?.followers?.length || 0;
-  const followingCount = user?.following?.length || 0;
+  const followersCount = targetUser?.followers?.length || 0;
+  const followingCount = targetUser?.following?.length || 0;
 
   const handleSave = async e => {
     e.preventDefault();
@@ -72,23 +130,23 @@ const ProfilePage = () => {
         <div className="profile-hero-body">
           <div className="profile-avatar-wrap">
             <div className="profile-avatar-ring">
-              {user?.avatar
-                ? <img src={`${API_URL}${user.avatar}`} alt={user.name} />
+              {targetUser?.avatar
+                ? <img src={`${API_URL}${targetUser.avatar}`} alt={targetUser.name} />
                 : <span>{initials}</span>}
             </div>
           </div>
-          <h1 className="profile-name">{user?.name}</h1>
-          <p className="profile-email">{user?.email}</p>
-          {user?.location?.city && (
+          <h1 className="profile-name">{targetUser?.name}</h1>
+          <p className="profile-email">{isOwnProfile ? currentUser?.email : ''}</p>
+          {targetUser?.location?.city && (
             <p className="profile-location">
               <MapPin size={12} />
-              {user.location.area && `${user.location.area}, `}{user.location.city}
+              {targetUser.location.area && `${targetUser.location.area}, `}{targetUser.location.city}
             </p>
           )}
           <div className="profile-badges">
-            {user?.role === 'govt'  && <span className="badge badge-success"><ShieldCheck size={11} /> Govt Official</span>}
-            {user?.role === 'admin' && <span className="badge" style={{ background: '#7c3aed', color: 'white' }}>Admin</span>}
-            {user?.isVerifiedBadge  && <span className="badge badge-govt"><ShieldCheck size={11} /> Verified</span>}
+            {targetUser?.role === 'govt'  && <span className="badge badge-success"><ShieldCheck size={11} /> Govt Official</span>}
+            {targetUser?.role === 'admin' && <span className="badge" style={{ background: '#7c3aed', color: 'white' }}>Admin</span>}
+            {targetUser?.isVerifiedBadge  && <span className="badge badge-govt"><ShieldCheck size={11} /> Verified</span>}
           </div>
         </div>
       </div>
@@ -133,39 +191,63 @@ const ProfilePage = () => {
 
         {/* ── ACTION BUTTONS ───────────────────────────────────────────── */}
         <div className="profile-action-btns">
-          <button className="profile-btn-outline" onClick={() => setShowEdit(true)}>
-            <Edit2 size={14} /> Edit Profile
-          </button>
-          <button className="profile-btn-filled" onClick={() => navigate('/add-shop')}>
-            <Plus size={14} /> Add a Shop
-          </button>
-        </div>
-
-        {/* ── MENU ROWS ────────────────────────────────────────────────── */}
-        <div className="profile-menu-group">
-          {(user?.role === 'govt' || user?.role === 'admin') && (
-            <button className="profile-menu-row" onClick={() => navigate('/dashboard')}>
-              <div className="profile-menu-icon" style={{ background: 'rgba(5,150,105,0.12)', color: 'var(--green)' }}>
-                <LayoutDashboard size={15} />
-              </div>
-              <span className="profile-menu-label">Govt Dashboard</span>
-              <ChevronRight size={15} className="profile-menu-chevron" />
+          {isOwnProfile ? (
+            <>
+              <button className="profile-btn-outline" onClick={() => setShowEdit(true)}>
+                <Edit2 size={14} /> Edit Profile
+              </button>
+              <button className="profile-btn-filled" onClick={() => navigate('/add-shop')}>
+                <Plus size={14} /> Add a Shop
+              </button>
+            </>
+          ) : (
+            <button 
+              className={`profile-btn-filled ${isFollowing ? 'profile-btn-outline' : ''}`} 
+              onClick={handleFollow}
+              disabled={followLoading}
+            >
+              {isFollowing ? (
+                <>Unfollow</>
+              ) : (
+                <><UserPlus size={14} /> Follow</>
+              )}
             </button>
           )}
-          <button className="profile-menu-row" onClick={() => navigate('/settings')}>
-            <div className="profile-menu-icon" style={{ background: 'rgba(91,79,232,0.10)', color: 'var(--brand)' }}>
-              <Settings size={15} />
-            </div>
-            <span className="profile-menu-label">Settings</span>
-            <ChevronRight size={15} className="profile-menu-chevron" />
-          </button>
-          <button className="profile-menu-row profile-menu-row--danger" onClick={handleLogout}>
-            <div className="profile-menu-icon" style={{ background: 'rgba(220,38,38,0.08)', color: 'var(--red)' }}>
-              <DoorOpen size={15} />
-            </div>
-            <span className="profile-menu-label">Sign Out</span>
-          </button>
         </div>
+
+        {isOwnProfile && (
+          <div className="profile-menu-group">
+            {(currentUser?.role === 'govt' || currentUser?.role === 'admin') && (
+              <button className="profile-menu-row" onClick={() => navigate('/dashboard')}>
+                <div className="profile-menu-icon" style={{ background: 'rgba(5,150,105,0.12)', color: 'var(--green)' }}>
+                  <LayoutDashboard size={15} />
+                </div>
+                <span className="profile-menu-label">Govt Dashboard</span>
+                <ChevronRight size={15} className="profile-menu-chevron" />
+              </button>
+            )}
+            <button className="profile-menu-row" onClick={() => navigate('/settings')}>
+              <div className="profile-menu-icon" style={{ background: 'rgba(91,79,232,0.10)', color: 'var(--brand)' }}>
+                <Settings size={15} />
+              </div>
+              <span className="profile-menu-label">Settings</span>
+              <ChevronRight size={15} className="profile-menu-chevron" />
+            </button>
+            <button className="profile-menu-row" onClick={() => setShowInvite(true)}>
+              <div className="profile-menu-icon" style={{ background: 'rgba(245,158,11,0.10)', color: 'var(--amber)' }}>
+                <Gift size={15} />
+              </div>
+              <span className="profile-menu-label">Invite Friends</span>
+              <ChevronRight size={15} className="profile-menu-chevron" />
+            </button>
+            <button className="profile-menu-row profile-menu-row--danger" onClick={handleLogout}>
+              <div className="profile-menu-icon" style={{ background: 'rgba(220,38,38,0.08)', color: 'var(--red)' }}>
+                <DoorOpen size={15} />
+              </div>
+              <span className="profile-menu-label">Sign Out</span>
+            </button>
+          </div>
+        )}
 
         {/* ── MY REVIEWS ───────────────────────────────────────────────── */}
         <div className="profile-reviews-section">
@@ -233,10 +315,10 @@ const ProfilePage = () => {
               <div className="edit-avatar-wrap">
                 <label htmlFor="av-upload" className="edit-avatar-label">
                   <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'var(--grad)', color: 'white', fontSize: 24, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', margin: '0 auto', border: '2px dashed var(--brand)' }}>
-                    {avatarPreview
+                      {avatarPreview
                       ? <img src={avatarPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : user?.avatar
-                        ? <img src={`${API_URL}${user.avatar}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : targetUser?.avatar
+                        ? <img src={`${API_URL}${targetUser.avatar}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         : <span>{initials}</span>}
                   </div>
                   <span className="edit-avatar-text"><Upload size={13} /> Change Photo</span>
@@ -297,6 +379,20 @@ const ProfilePage = () => {
           <div className="edit-sheet" onClick={e => e.stopPropagation()}>
             <h3 className="edit-sheet-title">Following</h3>
             <FollowersList type="following" />
+          </div>
+        </div>
+      )}
+      {/* ── INVITE MODAL ─────────────────────────────────────────────────── */}
+      {showInvite && (
+        <div className="modal-overlay" onClick={() => setShowInvite(false)} role="dialog" aria-modal="true">
+          <div className="edit-sheet" onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+              <h3 className="edit-sheet-title" style={{ margin: 0 }}>Invite Friends</h3>
+              <button onClick={() => setShowInvite(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)' }}>
+                <X size={20} />
+              </button>
+            </div>
+            <InviteFriends />
           </div>
         </div>
       )}

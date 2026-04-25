@@ -4,7 +4,7 @@ import { ShopCardHorizontal } from '../components/common/ShopCard';
 import { SkeletonShopCardHorizontal } from '../components/common/SkeletonCard';
 import { getShops } from '../utils/api';
 import { useLocation } from '../context/LocationContext';
-import { Search, X, MapPin, SlidersHorizontal, Star, Compass, Sparkles, Clock, ArrowUpDown } from 'lucide-react';
+import { Search, X, MapPin, SlidersHorizontal, Star, Compass, Sparkles, Clock, ArrowUpDown, Mic } from 'lucide-react';
 import '../styles/Search.css';
 
 const CATEGORIES = ['All', 'Food', 'Services', 'Shops', 'Products'];
@@ -52,6 +52,7 @@ const SearchPage = () => {
   const [resultError, setResultError] = useState('');
   const [recentSearches, setRecentSearches] = useState(getRecentSearches);
 
+  const [isListening, setIsListening] = useState(false);
   const [suggestions, setSuggestions]       = useState([]);
   const [showSuggest, setShowSuggest]       = useState(false);
   const [suggestLoading, setSuggestLoading] = useState(false);
@@ -63,6 +64,38 @@ const SearchPage = () => {
   const urlSyncRef = useRef(null);
   const sentinelRef = useRef(null);
   const pagingRef = useRef(false);
+
+  const handleVoiceSearch = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Voice search is not supported in this browser.');
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-IN';
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setQuery(transcript);
+      handleSearchSubmit(transcript);
+    };
+    recognition.start();
+  };
+
+  const highlightText = (text, highlight) => {
+    if (!highlight.trim()) return text;
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return (
+      <span>
+        {parts.map((part, i) => 
+          part.toLowerCase() === highlight.toLowerCase() 
+            ? <mark key={i} className="search-highlight">{part}</mark> 
+            : part
+        )}
+      </span>
+    );
+  };
 
   const fetchPage = useCallback(async (q, cat, rating, sort, targetPage, replace = false) => {
     if (!replace && (pagingRef.current || !hasMore)) return;
@@ -111,7 +144,29 @@ const SearchPage = () => {
 
   useEffect(() => {
     clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => search(query, category, minRating, sortBy), 350);
+    debounceRef.current = setTimeout(() => {
+      let finalCat = category;
+      let finalRating = minRating;
+      let finalSort = sortBy;
+      let cleanQuery = query.toLowerCase();
+
+      // Simple NLP logic
+      if (cleanQuery.includes('top ') || cleanQuery.includes('best ') || cleanQuery.includes('highly rated')) {
+        finalRating = 4;
+      }
+      if (cleanQuery.includes('new ') || cleanQuery.includes('latest ')) {
+        finalSort = 'newest';
+      }
+      if (cleanQuery.includes('popular ')) {
+        finalSort = 'reviews';
+      }
+      
+      // Auto-category detection
+      const foundCat = CATEGORIES.find(c => c !== 'All' && cleanQuery.includes(c.toLowerCase()));
+      if (foundCat) finalCat = foundCat;
+
+      search(query, finalCat, finalRating, finalSort);
+    }, 350);
     return () => clearTimeout(debounceRef.current);
   }, [query, category, minRating, sortBy, search]);
 
@@ -208,11 +263,20 @@ const SearchPage = () => {
                 autoFocus
                 autoComplete="off"
               />
-              {query && (
-                <button className="search-clear" onClick={() => { setQuery(''); setSuggestions([]); inputRef.current?.focus(); }} aria-label="Clear">
-                  <X size={15} />
+              <div className="search-bar-actions">
+                {query && (
+                  <button className="search-clear" onClick={() => { setQuery(''); setSuggestions([]); inputRef.current?.focus(); }} aria-label="Clear">
+                    <X size={15} />
+                  </button>
+                )}
+                <button 
+                  className={`search-voice-btn ${isListening ? 'listening' : ''}`} 
+                  onClick={handleVoiceSearch}
+                  title="Voice Search"
+                >
+                  <Mic size={17} />
                 </button>
-              )}
+              </div>
             </div>
 
             {/* Autocomplete */}
@@ -264,8 +328,8 @@ const SearchPage = () => {
                             {shop.category === 'Food' ? '🍽️' : shop.category === 'Services' ? '🔧' : shop.category === 'Shops' ? '🛍️' : '📦'}
                           </span>
                           <span className="suggest-info">
-                            <span className="suggest-name">{shop.name}</span>
-                            <span className="suggest-meta">{shop.category} · {shop.area}, {shop.city}</span>
+                            <span className="suggest-name">{highlightText(shop.name, query)}</span>
+                            <span className="suggest-meta">{highlightText(`${shop.category} · ${shop.area}, ${shop.city}`, query)}</span>
                           </span>
                           {shop.averageRating > 0 && (
                             <span className="suggest-rating"><Star size={11} fill="var(--accent)" color="var(--accent)" /> {shop.averageRating.toFixed(1)}</span>

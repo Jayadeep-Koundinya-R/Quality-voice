@@ -117,54 +117,60 @@ body,
   /* Light mode grays */
   --color-gray-50:  #F9FAFB;
   --color-gray-100: #F6F8FA;
-  --color-gray-200: #F0F3F6;
-  --color-gray-300: #E8ECF0;
-  --color-gray-400: #D0D7DE;
-  --color-gray-500: #AFB8C1;
-  --color-gray-600: #6E7781;
-  --color-gray-700: #57606A;
-  --color-gray-800: #32383F;
-  --color-gray-900: #24292F;
-  --color-gray-950: #0D1117;     /* Darkest - primary text */
+  --color-gray-200: #F1F4F8;
+  --color-gray-300: #E2E8F0;
+  --color-gray-400: #CBD5E1;
+  --color-gray-500: #94A3B8;
+  --color-gray-600: #64748B;
+  --color-gray-700: #475569;
+  --color-gray-800: #1E293B;
+  --color-gray-900: #0F172A;
+  --color-gray-950: #020617;
 
   /* ─── BACKGROUND COLORS ───────────────────────────────────────────────────── */
-  --color-bg-page:      #F6F8FA;
+  --color-bg-page:      #F8FAFC;
   --color-bg-card:      #FFFFFF;
-  --color-bg-elevated:  #F0F3F6;
-  --color-bg-input:     #F0F3F6;
-  --color-bg-hover:     #E8ECF0;
-  --color-bg-navbar:    rgba(246,248,250,0.92);
+  --color-bg-elevated:  #FFFFFF;
+  --color-bg-input:     #F1F5F9;
+  --color-bg-hover:     #F1F5F9;
+  --color-bg-navbar:    rgba(255,255,255,0.85);
+
+  /* Glassmorphism */
+  --glass: blur(16px) saturate(180%);
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.125);
 
   /* ─── TEXT COLORS ─────────────────────────────────────────────────────────── */
-  --color-text-primary:   #0D1117;   /* WCAG AA on white: 19.5:1 ✓ */
-  --color-text-secondary: #57606A;   /* WCAG AA on white: 7.3:1 ✓ */
-  --color-text-muted:     #AFB8C1;   /* WCAG AA on white: 3.1:1 ✓ */
+  --color-text-primary:   #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted:     #94A3B8;
   --color-text-inverse:   #FFFFFF;
 
   /* ─── BORDER COLORS ───────────────────────────────────────────────────────── */
-  --color-border:        rgba(0,0,0,0.08);
-  --color-border-strong: rgba(0,0,0,0.14);
+  --color-border:        #E2E8F0;
+  --color-border-strong: #CBD5E1;
 
   /* ─── SHADOW COLORS ───────────────────────────────────────────────────────── */
-  --color-shadow: rgba(0,0,0,0.06);
-  --color-shadow-brand: rgba(91,79,232,0.12);
+  --color-shadow: rgba(15, 23, 42, 0.04);
+  --color-shadow-brand: rgba(91, 79, 232, 0.15);
 
   /* ─── LEGACY DESIGN TOKENS (backward compatibility) ───────────────────────── */
-  --bg:     #F6F8FA;
+  --bg:     #F8FAFC;
   --bg2:    #FFFFFF;
-  --bg3:    #F0F3F6;
-  --border: rgba(0,0,0,0.08);
-  --text1:  #0D1117;
-  --text2:  #57606A;
-  --text3:  #AFB8C1;
+  --bg3:    #F1F5F9;
+  --border: #E2E8F0;
+  --text1:  #0F172A;
+  --text2:  #475569;
+  --text3:  #94A3B8;
   --brand:  #5B4FE8;
   --brand2: #7C3AED;
-  --amber:  #D97706;
-  --green:  #059669;
-  --red:    #DC2626;
+  --amber:  #F59E0B;
+  --green:  #10B981;
+  --red:    #EF4444;
 
   /* Gradient */
-  --grad: linear-gradient(135deg, #5B4FE8, #7C3AED);
+  --grad: linear-gradient(135deg, #5B4FE8 0%, #7C3AED 100%);
+  --grad-surface: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%);
 
   /* Legacy aliases — keep existing components working */
   --primary:        var(--color-primary-500);
@@ -172,7 +178,7 @@ body,
   --primary-light:  var(--color-primary-50);
   --primary-mid:    var(--color-primary-100);
   --primary-glow:   var(--color-primary-200);
-  --gradient-brand: linear-gradient(135deg, var(--color-primary-500), var(--color-secondary-500));
+  --gradient-brand: var(--grad);
   --accent:         var(--color-secondary-500);
   --accent-light:   var(--color-secondary-50);
   --accent-dark:    var(--color-secondary-600);
@@ -1071,7 +1077,32 @@ h6.responsive, .h6-responsive { font-size: var(--text-responsive-base); font-wei
   --color-warning-300: #B45309;
   --color-warning-400: #D97706;
   --color-warning-500: #F59E0B;   /* Dark mode warning */
-  --color-warning-600: #FBBF24;
+  .page-wrapper {
+  flex: 1;
+  padding-bottom: 72px; /* Bottom bar height + safety */
+  min-height: 100vh;
+  background: var(--bg1);
+  transition: background-color 0.3s ease;
+}
+
+.content-container {
+  width: 100%;
+  max-width: 800px; /* Standard premium width */
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+@media (min-width: 1024px) {
+  .content-container {
+    padding: 0 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-container {
+    padding: 0 16px;
+  }
+}
   --color-warning-700: #FCD34D;
   --color-warning-800: #FDE68A;
   --color-warning-900: #FEF3C7;

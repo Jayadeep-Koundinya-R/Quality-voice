@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useLocation as useLocCtx } from '../../context/LocationContext';
@@ -9,6 +9,8 @@ import {
   User, Settings, LogOut, LayoutDashboard, X, Navigation2, Mic2
 } from 'lucide-react';
 import './Navbar.css';
+
+import { getUnreadCount } from '../../utils/api';
 
 /* ─── Location Modal ─────────────────────────────────────────────────────────── */
 const LocationModal = ({ onClose }) => {
@@ -120,11 +122,40 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
+  const [unreadCount, setUnreadCount] = useState(0);
   const userMenuRef = useRef(null);
 
   const locationLabel = location.city
     ? `${location.area ? location.area + ', ' : ''}${location.city}`
     : 'Set location';
+
+  useEffect(() => {
+    if (!user) {
+      document.title = 'QualityVoice';
+      return;
+    }
+    const fetchUnread = async () => {
+      try {
+        const { data } = await getUnreadCount();
+        setUnreadCount(data.count);
+        
+        // Update tab unread count
+        if (data.count > 0) {
+          document.title = `(${data.count}) QualityVoice`;
+        } else {
+          document.title = 'QualityVoice';
+        }
+
+        // Request notification permission if not asked yet
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
+      } catch {}
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [user]);
 
   useEffect(() => {
     const handler = e => {
@@ -197,13 +228,18 @@ const Navbar = () => {
             </button>
 
             {/* Notifications */}
-            <button
-              className="navbar-icon-btn"
-              onClick={() => navigate('/notifications')}
-              aria-label="Notifications"
+            <Link 
+              to="/notifications" 
+              className="navbar-icon-btn" 
+              aria-label={`Notifications, ${unreadCount} unread`}
             >
               <Bell size={19} />
-            </button>
+              {unreadCount > 0 && (
+                <span className="navbar-notif-badge">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </Link>
 
             {/* Avatar */}
             <div className="navbar-user-wrap" ref={userMenuRef}>

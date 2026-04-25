@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Copy, Gift, Link, Check, X } from 'lucide-react';
+import { Users, Copy, Gift, Link, Check } from 'lucide-react';
 import { useToast } from './Toast';
 
 const InviteFriends = () => {

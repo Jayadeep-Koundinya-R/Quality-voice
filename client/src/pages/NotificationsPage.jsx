@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getNotifications, markAllRead, markOneRead } from '../utils/api';
-import { MessageSquare, Heart, ShieldCheck, CheckCheck, Bell } from 'lucide-react';
+import { MessageSquare, Heart, ShieldCheck, CheckCheck, Bell, UserPlus, AtSign } from 'lucide-react';
 import '../styles/Notifications.css';
 
 /* ─── Config ─────────────────────────────────────────────────────────────────── */
@@ -10,6 +10,8 @@ const ICONS = {
   like:            { icon: Heart,         color: '#EF4444', bg: '#FEF2F2' },
   badge:           { icon: ShieldCheck,   color: '#10B981', bg: '#ECFDF5' },
   report_reviewed: { icon: CheckCheck,    color: '#F59E0B', bg: '#FEF3C7' },
+  follow:          { icon: UserPlus,      color: '#6366F1', bg: '#EEF2FF' },
+  mention:         { icon: AtSign,        color: '#8B5CF6', bg: '#F5F3FF' },
 };
 
 const timeAgo = dateStr => {
@@ -31,6 +33,8 @@ const notificationText = n => {
     case 'like':            return { title: `${actor} liked your review`, body: '', shop: n.shopId?.name };
     case 'badge':           return { title: 'Your shop got a Govt Badge!', body: 'A government official verified this shop.', shop: n.shopId?.name };
     case 'report_reviewed': return { title: 'Your report was reviewed', body: 'A government official looked into your report.', shop: n.shopId?.name };
+    case 'follow':          return { title: `${actor} started following you`, body: 'Grow your network of trusted reviewers!', shop: '' };
+    case 'mention':         return { title: `${actor} mentioned you`, body: n.commentText ? `"${n.commentText}"` : '', shop: n.shopId?.name };
     default:                return { title: 'New notification', body: '', shop: '' };
   }
 };

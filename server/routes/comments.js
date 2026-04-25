@@ -18,6 +18,8 @@ router.get('/:reviewId', protect, async (req, res) => {
   }
 });
 
+const { handleMentions } = require('../utils/mentionHandler');
+
 // POST /api/comments — add a comment and create notification
 router.post('/', protect, async (req, res) => {
   try {
@@ -35,6 +37,9 @@ router.post('/', protect, async (req, res) => {
       userId: req.user._id,
       commentText
     });
+
+    // Handle user mentions
+    await handleMentions(commentText, req.user._id, review._id, review.shopId, 'mention');
 
     // Notify the review author (skip if commenting on own review)
     if (review.userId._id.toString() !== req.user._id.toString()) {

@@ -80,7 +80,12 @@ const ReviewFeedCard = ({ review, currentUser, onNavigate }) => {
         <div className="rf-avatar" style={{ background: avatarGrad }}>{initials}</div>
         <div className="rf-meta">
           <div className="rf-name-row">
-            <span className="rf-username">{review.userId?.name || 'Anonymous'}</span>
+            <button 
+              className="rf-username-link" 
+              onClick={() => onNavigate(`/profile/${review.userId?._id}`)}
+            >
+              {review.userId?.name || 'Anonymous'}
+            </button>
             {review.isTravellerReview && (
               <span className="rf-traveller-tag">✈ Traveller from {review.reviewerHomeCity}</span>
             )}
@@ -314,7 +319,7 @@ const HomePage = () => {
     await fetchFeedPage({ targetPage: 1, replace: true });
   }, [fetchFeedPage]);
 
-  useEffect(() => { if (!location.city) detectGPS(); }, []); // eslint-disable-line
+  useEffect(() => { if (!location.city) detectGPS(); }, [location.city, detectGPS]); 
   useEffect(() => { loadFeed(); }, [loadFeed]);
   
   // Load follow suggestions
@@ -572,12 +577,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { SkeletonFeedSection, SkeletonReviewCard } from '../components/common/SkeletonCard';
-import { getFeed, markHelpful, getFollowSuggestions, API_URL } from '../utils/api';
-import { useLocation } from '../context/LocationContext';
-import { useAuth } from '../context/AuthContext';
-import { Heart, MessageSquare, Flag, Star, Plus, ArrowRight, Sparkles, TrendingUp, Users } from 'lucide-react';
-import '../styles/Home.css';
-import UserFollowCard from '../components/common/UserFollowCard';

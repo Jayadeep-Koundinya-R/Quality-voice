@@ -301,6 +301,81 @@
   box-shadow: var(--shadow-card);
 }
 
+.search-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.search-voice-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.search-voice-btn:hover {
+  background: var(--bg3);
+  color: var(--brand);
+}
+
+.search-voice-btn.listening {
+  color: white;
+  background: var(--red);
+  animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.search-highlight {
+  background: rgba(91, 79, 232, 0.15);
+  color: var(--brand);
+  font-weight: 700;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+/* Filter Chips Enhancements */
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-chip {
+  padding: 8px 16px;
+  border-radius: 100px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-chip:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.filter-chip.active {
+  background: var(--brand);
+  color: white;
+  border-color: var(--brand);
+}
+
 .filter-row { display: flex; flex-direction: column; gap: 8px; }
 
 .filter-row-label {
@@ -311,22 +386,6 @@
   letter-spacing: 0.8px;
 }
 
-.filter-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-
-.filter-chip {
-  padding: 6px 16px;
-  border-radius: var(--r-full);
-  font-size: 13px;
-  font-weight: 500;
-  border: 1.5px solid var(--border-color);
-  background: var(--bg-elevated);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: var(--transition);
-  min-height: 34px;
-}
-
-.filter-chip:hover { border-color: var(--primary); color: var(--primary); }
 .filter-chip.active {
   background: var(--gradient-brand);
   border-color: transparent;
