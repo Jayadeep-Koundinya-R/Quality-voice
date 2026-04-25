@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getShops, getReports, giveBadge, removeBadge, updateReportStatus, API_URL } from '../utils/api';
+import { getShops, getReports, giveBadge, removeBadge, updateReportStatus } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/common/Toast';
 import { 
-  ArrowLeft, LayoutDashboard, ShieldCheck, AlertCircle, 
-  Users, Store, BarChart3, Clock, Settings, 
-  MoreHorizontal, CheckCircle2, XCircle, Search, 
-  TrendingUp, TrendingDown, Flag, Star
+  ArrowLeft, ShieldCheck, AlertCircle, 
+  Users, Store, BarChart3, 
+  MoreHorizontal, CheckCircle2, 
+  TrendingUp, Flag, Star
 } from 'lucide-react';
 import '../styles/global.css';
 import '../styles/Dashboard.css';
@@ -21,7 +21,6 @@ const DashboardPage = () => {
   const [shops, setShops] = useState([]);
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState('');
 
   useEffect(() => {
@@ -35,7 +34,7 @@ const DashboardPage = () => {
         setShops(shopsRes.data.shops);
         setReports(reportsRes.data.reports);
       } catch (err) {
-        setError('Failed to load dashboard data.');
+        console.error('Failed to load dashboard data:', err);
       } finally {
         setLoading(false);
       }

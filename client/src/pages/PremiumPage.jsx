@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, Check, Sparkles, Star, Zap, Shield, BarChart3, 
+  ArrowLeft, Check, Sparkles, Shield, BarChart3, 
   Crown, Gem, Rocket, Gift, Smartphone 
 } from 'lucide-react';
 import '../styles/Premium.css';
