@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../components/common/Toast';
 import { 
   ArrowLeft, Check, Sparkles, Shield, BarChart3, 
   Crown, Gem, Rocket, Gift, Smartphone 
@@ -64,6 +65,16 @@ const TIER_CARDS = [
 
 const PremiumPage = () => {
   const navigate = useNavigate();
+  const toast = useToast();
+
+  const handleUpgrade = (tier) => {
+    if (tier.active) return;
+    toast.success(`Redirecting to payment for ${tier.name} plan...`);
+    // Simulate payment flow
+    setTimeout(() => {
+      toast.info("This is a demo. In production, this would open Stripe/Razorpay.");
+    }, 2000);
+  };
 
   return (
     <div className="premium-page">
@@ -116,6 +127,7 @@ const PremiumPage = () => {
               <button 
                 className={`tier-btn ${tier.highlight ? 'btn-primary' : 'btn-outline'}`}
                 disabled={tier.active}
+                onClick={() => handleUpgrade(tier)}
               >
                 {tier.btnText}
               </button>

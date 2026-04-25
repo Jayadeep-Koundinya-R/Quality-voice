@@ -6,11 +6,9 @@ import { getProfile, updateProfile, getUserProfile, followUser, unfollowUser, ch
 import {
   ShieldCheck, LayoutDashboard, MapPin,
   Upload, Star, Settings, Edit2, Plus, DoorOpen, ChevronRight,
-  MessageSquare, TrendingUp, UserPlus, X
 } from 'lucide-react';
 import FollowersList from '../components/common/FollowersList';
 import InviteFriends from '../components/common/InviteFriends';
-import { Gift } from 'lucide-react';
 import '../styles/Profile.css';
 
 const ProfilePage = () => {
@@ -152,105 +150,109 @@ const ProfilePage = () => {
       </div>
 
       <div className="content-container">
-
-        {/* ── STATS GRID ───────────────────────────────────────────────── */}
-        <div className="profile-stats-grid">
-          <div className="profile-stat-card">
-            <span className="profile-stat-label">Reviews</span>
-            <div className="profile-stat-value">{reviews.length}</div>
-          </div>
-          <div className="profile-stat-card">
-            <span className="profile-stat-label">Avg Rating</span>
-            <div className="profile-stat-value profile-stat-value--amber">{avgRating}</div>
-          </div>
-          <div className="profile-stat-card">
-            <span className="profile-stat-label">Shops</span>
-            <div className="profile-stat-value">{shopsCount}</div>
-          </div>
-        </div>
-
-        {/* ── SOCIAL STATS ─────────────────────────────────────────────── */}
-        <div className="profile-stats-grid">
-          <div className="profile-stat-card">
-            <span className="profile-stat-label">Followers</span>
-            <div className="profile-stat-value profile-stat-value--blue" onClick={() => setShowFollowers(true)} style={{cursor:'pointer'}}>
-              {followersCount}
+        <div className="profile-layout-grid">
+          {/* ── SIDEBAR (Stats + Actions + Menu) ── */}
+          <aside className="profile-sidebar">
+            {/* Stats Grid 1 */}
+            <div className="profile-stats-grid">
+              <div className="profile-stat-card">
+                <span className="profile-stat-label">Reviews</span>
+                <div className="profile-stat-value">{reviews.length}</div>
+              </div>
+              <div className="profile-stat-card">
+                <span className="profile-stat-label">Avg Rating</span>
+                <div className="profile-stat-value profile-stat-value--amber">{avgRating}</div>
+              </div>
+              <div className="profile-stat-card">
+                <span className="profile-stat-label">Shops</span>
+                <div className="profile-stat-value">{shopsCount}</div>
+              </div>
             </div>
-          </div>
-          <div className="profile-stat-card">
-            <span className="profile-stat-label">Following</span>
-            <div className="profile-stat-value profile-stat-value--blue" onClick={() => setShowFollowing(true)} style={{cursor:'pointer'}}>
-              {followingCount}
-            </div>
-          </div>
-          <div className="profile-stat-card">
-            <span className="profile-stat-label">Points</span>
-            <div className="profile-stat-value profile-stat-value--green">{reviews.length * 10 + shopsCount * 20}</div>
-          </div>
-        </div>
 
-        {/* ── ACTION BUTTONS ───────────────────────────────────────────── */}
-        <div className="profile-action-btns">
-          {isOwnProfile ? (
-            <>
-              <button className="profile-btn-outline" onClick={() => setShowEdit(true)}>
-                <Edit2 size={14} /> Edit Profile
-              </button>
-              <button className="profile-btn-filled" onClick={() => navigate('/add-shop')}>
-                <Plus size={14} /> Add a Shop
-              </button>
-            </>
-          ) : (
-            <button 
-              className={`profile-btn-filled ${isFollowing ? 'profile-btn-outline' : ''}`} 
-              onClick={handleFollow}
-              disabled={followLoading}
-            >
-              {isFollowing ? (
-                <>Unfollow</>
-              ) : (
-                <><UserPlus size={14} /> Follow</>
-              )}
-            </button>
-          )}
-        </div>
-
-        {isOwnProfile && (
-          <div className="profile-menu-group">
-            {(currentUser?.role === 'govt' || currentUser?.role === 'admin') && (
-              <button className="profile-menu-row" onClick={() => navigate('/dashboard')}>
-                <div className="profile-menu-icon" style={{ background: 'rgba(5,150,105,0.12)', color: 'var(--green)' }}>
-                  <LayoutDashboard size={15} />
+            {/* Social Stats Grid */}
+            <div className="profile-stats-grid">
+              <div className="profile-stat-card" onClick={() => setShowFollowers(true)} style={{cursor:'pointer'}}>
+                <span className="profile-stat-label">Followers</span>
+                <div className="profile-stat-value profile-stat-value--blue">
+                  {followersCount}
                 </div>
-                <span className="profile-menu-label">Govt Dashboard</span>
-                <ChevronRight size={15} className="profile-menu-chevron" />
-              </button>
-            )}
-            <button className="profile-menu-row" onClick={() => navigate('/settings')}>
-              <div className="profile-menu-icon" style={{ background: 'rgba(91,79,232,0.10)', color: 'var(--brand)' }}>
-                <Settings size={15} />
               </div>
-              <span className="profile-menu-label">Settings</span>
-              <ChevronRight size={15} className="profile-menu-chevron" />
-            </button>
-            <button className="profile-menu-row" onClick={() => setShowInvite(true)}>
-              <div className="profile-menu-icon" style={{ background: 'rgba(245,158,11,0.10)', color: 'var(--amber)' }}>
-                <Gift size={15} />
+              <div className="profile-stat-card" onClick={() => setShowFollowing(true)} style={{cursor:'pointer'}}>
+                <span className="profile-stat-label">Following</span>
+                <div className="profile-stat-value profile-stat-value--blue">
+                  {followingCount}
+                </div>
               </div>
-              <span className="profile-menu-label">Invite Friends</span>
-              <ChevronRight size={15} className="profile-menu-chevron" />
-            </button>
-            <button className="profile-menu-row profile-menu-row--danger" onClick={handleLogout}>
-              <div className="profile-menu-icon" style={{ background: 'rgba(220,38,38,0.08)', color: 'var(--red)' }}>
-                <DoorOpen size={15} />
+              <div className="profile-stat-card">
+                <span className="profile-stat-label">Points</span>
+                <div className="profile-stat-value profile-stat-value--green">{reviews.length * 10 + shopsCount * 20}</div>
               </div>
-              <span className="profile-menu-label">Sign Out</span>
-            </button>
-          </div>
-        )}
+            </div>
 
-        {/* ── MY REVIEWS ───────────────────────────────────────────────── */}
-        <div className="profile-reviews-section">
+            {/* Action Buttons */}
+            <div className="profile-action-btns">
+              {isOwnProfile ? (
+                <>
+                  <button className="profile-btn-outline" onClick={() => setShowEdit(true)}>
+                    <Edit2 size={14} /> Edit Profile
+                  </button>
+                  <button className="profile-btn-filled" onClick={() => navigate('/add-shop')}>
+                    <Plus size={14} /> Add a Shop
+                  </button>
+                </>
+              ) : (
+                <button 
+                  className={`profile-btn-filled ${isFollowing ? 'profile-btn-outline' : ''}`} 
+                  onClick={handleFollow}
+                  disabled={followLoading}
+                >
+                  {isFollowing ? (
+                    <>Unfollow</>
+                  ) : (
+                    <><UserPlus size={14} /> Follow</>
+                  )}
+                </button>
+              )}
+            </div>
+
+            {isOwnProfile && (
+              <div className="profile-menu-group">
+                {(currentUser?.role === 'govt' || currentUser?.role === 'admin') && (
+                  <button className="profile-menu-row" onClick={() => navigate('/dashboard')}>
+                    <div className="profile-menu-icon" style={{ background: 'rgba(5,150,105,0.12)', color: 'var(--green)' }}>
+                      <LayoutDashboard size={15} />
+                    </div>
+                    <span className="profile-menu-label">Govt Dashboard</span>
+                    <ChevronRight size={15} className="profile-menu-chevron" />
+                  </button>
+                )}
+                <button className="profile-menu-row" onClick={() => navigate('/settings')}>
+                  <div className="profile-menu-icon" style={{ background: 'rgba(91,79,232,0.10)', color: 'var(--brand)' }}>
+                    <Settings size={15} />
+                  </div>
+                  <span className="profile-menu-label">Settings</span>
+                  <ChevronRight size={15} className="profile-menu-chevron" />
+                </button>
+                <button className="profile-menu-row" onClick={() => setShowInvite(true)}>
+                  <div className="profile-menu-icon" style={{ background: 'rgba(245,158,11,0.10)', color: 'var(--amber)' }}>
+                    <Gift size={15} />
+                  </div>
+                  <span className="profile-menu-label">Invite Friends</span>
+                  <ChevronRight size={15} className="profile-menu-chevron" />
+                </button>
+                <button className="profile-menu-row profile-menu-row--danger" onClick={handleLogout}>
+                  <div className="profile-menu-icon" style={{ background: 'rgba(220,38,38,0.08)', color: 'var(--red)' }}>
+                    <DoorOpen size={15} />
+                  </div>
+                  <span className="profile-menu-label">Sign Out</span>
+                </button>
+              </div>
+            )}
+          </aside>
+
+          {/* ── MAIN CONTENT (Reviews) ── */}
+          <main className="profile-main">
+            <div className="profile-reviews-section">
           <div className="profile-reviews-header">
             <h2 className="profile-reviews-heading">
               <MessageSquare size={16} /> My Reviews
@@ -301,8 +303,9 @@ const ProfilePage = () => {
               </div>
             </div>
           ))}
+            </div>
+          </main>
         </div>
-
       </div>
 
       {/* ── EDIT MODAL ───────────────────────────────────────────────────── */}

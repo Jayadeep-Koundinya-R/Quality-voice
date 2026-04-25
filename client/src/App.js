@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/common/Navbar';
 import BottomTabBar from './components/common/BottomTabBar';
 import GlobalErrorBoundary from './components/common/GlobalErrorBoundary';
+import GlobalBackground from './components/common/GlobalBackground';
 
 import './styles/global.css';
 
@@ -53,6 +54,7 @@ const App = () => {
           <LocationProvider>
             <ToastProvider>
               <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <GlobalBackground />
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
                     {/* Public — no shell */}
