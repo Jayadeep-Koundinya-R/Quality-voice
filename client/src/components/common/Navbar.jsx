@@ -6,7 +6,7 @@ import { useLocation as useLocCtx } from '../../context/LocationContext';
 
 import {
   Search, Bell, ChevronDown, Moon, Sun,
-  User, Settings, LogOut, LayoutDashboard, X, Navigation2, Mic2
+  User, Settings, LogOut, LayoutDashboard, X, Navigation2, Mic2, Home
 } from 'lucide-react';
 import './Navbar.css';
 
@@ -86,6 +86,9 @@ const UserMenu = ({ user, onClose }) => {
 
       <div className="user-menu-divider" />
 
+      <button className="user-menu-item" onClick={() => go('/home')}>
+        <Home size={15} /> Home
+      </button>
       <button className="user-menu-item" onClick={() => go('/profile')}>
         <User size={15} /> Profile
       </button>

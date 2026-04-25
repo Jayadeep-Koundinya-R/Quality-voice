@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getFollowers, getFollowing, getFollowSuggestions, API_URL } from '../../utils/api';
+import { getFollowers, getFollowing, getFollowSuggestions, resolveMediaUrl } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { Users, TrendingUp, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -90,7 +90,7 @@ const FollowersList = ({ type = 'followers', userId }) => {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
               {item.avatar ? (
-                <img src={`${API_URL}${item.avatar}`} alt={item.name} className="w-full h-full object-cover" />
+                <img src={resolveMediaUrl(item.avatar)} alt={item.name} className="w-full h-full object-cover" />
               ) : (
                 item.name?.[0]?.toUpperCase() || '?'
               )}

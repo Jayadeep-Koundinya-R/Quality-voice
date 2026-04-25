@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Copy, Gift, Link, Check } from 'lucide-react';
+import { Users, Copy, Gift, Link, Check, Share2, Sparkles, ArrowRight } from 'lucide-react';
 import { useToast } from './Toast';
 
 const InviteFriends = () => {
@@ -7,9 +7,14 @@ const InviteFriends = () => {
   const [copied, setCopied] = useState(false);
   const toast = useToast();
 
-  const handleCopyCode = async () => {
+  const referralLink = `https://qualityvoice.app/ref/${referralCode}`;
+  const rewardPerFriend = 500;
+  const invitedCount = 0;
+  const earnedPoints = invitedCount * rewardPerFriend;
+
+  const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(`https://qualityvoice.app/ref/${referralCode}`);
+      await navigator.clipboard.writeText(referralLink);
       setCopied(true);
       toast.success('Referral link copied!');
       setTimeout(() => setCopied(false), 2000);
@@ -18,7 +23,7 @@ const InviteFriends = () => {
     }
   };
 
-  const handleCopyCodeOnly = async () => {
+  const handleCopyCode = async () => {
     try {
       await navigator.clipboard.writeText(referralCode);
       setCopied(true);
@@ -30,65 +35,80 @@ const InviteFriends = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-white/20 rounded-xl">
-            <Gift size={24} />
+    <div className="invite-card">
+      <div className="invite-card__hero">
+        <div className="invite-card__icon-wrap">
+          <div className="invite-card__icon">
+            <Gift size={22} />
           </div>
-          <div>
-            <h3 className="text-lg font-bold">Invite Friends</h3>
-            <p className="text-blue-100 text-sm">Get 500 points for each friend</p>
+          <div className="invite-card__sparkle">
+            <Sparkles size={14} />
           </div>
+        </div>
+        <div className="invite-card__hero-copy">
+          <span className="invite-card__eyebrow">Referral rewards</span>
+          <h3 className="invite-card__title">Invite friends and grow your circle</h3>
+          <p className="invite-card__subtitle">
+            Earn {rewardPerFriend} points each time someone joins with your invite.
+          </p>
         </div>
       </div>
 
-      <div className="bg-white/10 rounded-xl p-4 mb-4 backdrop-blur-sm">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-blue-100">Your referral code</span>
+      <div className="invite-card__stats">
+        <div className="invite-card__stat">
+          <span className="invite-card__stat-label">Friends joined</span>
+          <strong className="invite-card__stat-value">{invitedCount}</strong>
+        </div>
+        <div className="invite-card__stat">
+          <span className="invite-card__stat-label">Points earned</span>
+          <strong className="invite-card__stat-value invite-card__stat-value--accent">{earnedPoints}</strong>
+        </div>
+      </div>
+
+      <div className="invite-card__panel">
+        <div className="invite-card__panel-head">
+          <span className="invite-card__panel-label">Your referral code</span>
           <button
-            onClick={handleCopyCodeOnly}
-            className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+            type="button"
+            onClick={handleCopyCode}
+            className="invite-card__icon-button"
             title="Copy code"
+            aria-label="Copy referral code"
           >
             {copied ? <Check size={16} /> : <Copy size={16} />}
           </button>
         </div>
-        <div className="flex items-center gap-2">
-          <code className="bg-white/20 px-3 py-2 rounded-lg font-mono text-lg font-bold flex-1 text-center">
-            {referralCode}
-          </code>
-        </div>
+        <code className="invite-card__code">{referralCode}</code>
       </div>
 
-      <div className="space-y-3">
-        <button
-          onClick={handleCopyCode}
-          className="w-full flex items-center justify-center gap-2 bg-white text-blue-600 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
-        >
+      <div className="invite-card__panel invite-card__panel--compact">
+        <span className="invite-card__panel-label">Referral link</span>
+        <div className="invite-card__link-preview">{referralLink}</div>
+      </div>
+
+      <div className="invite-card__actions">
+        <button type="button" onClick={handleCopyLink} className="invite-card__primary-btn">
           <Link size={18} />
           Copy referral link
         </button>
 
-        <div className="grid grid-cols-2 gap-3">
-          <button className="flex items-center justify-center gap-2 bg-white/20 py-2 rounded-lg hover:bg-white/30 transition-colors">
-            <Users size={16} />
-            <span className="text-sm">Share</span>
+        <div className="invite-card__secondary-actions">
+          <button className="invite-card__secondary-btn" type="button">
+            <Share2 size={16} />
+            <span>Share invite</span>
           </button>
-          <button className="flex items-center justify-center gap-2 bg-white/20 py-2 rounded-lg hover:bg-white/30 transition-colors">
-            <Link size={16} />
-            <span className="text-sm">Link</span>
+          <button className="invite-card__secondary-btn" type="button">
+            <Users size={16} />
+            <span>Invite list</span>
+            <ArrowRight size={14} />
           </button>
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-white/20">
-        <div className="flex items-center justify-between text-sm text-blue-100">
-          <span>Friends invited</span>
-          <span className="font-bold">0</span>
-        </div>
-        <div className="w-full bg-black/20 rounded-full h-2 mt-2">
-          <div className="bg-white/30 h-2 rounded-full" style={{ width: '0%' }} />
+      <div className="invite-card__footnote">
+        <div className="invite-card__footnote-row">
+          <span>Personal invites usually convert better than generic link sharing.</span>
+          <span>{rewardPerFriend} pts / friend</span>
         </div>
       </div>
     </div>

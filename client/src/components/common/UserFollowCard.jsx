@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { checkFollow, followUser, unfollowUser, API_URL } from '../../utils/api';
+import { checkFollow, followUser, unfollowUser, resolveMediaUrl } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { UserPlus, UserCheck, MessageSquare, Star } from 'lucide-react';
 import { useToast } from './Toast';
@@ -54,7 +54,7 @@ const UserFollowCard = ({ user, onFollow, onUnfollow }) => {
       <div className="user-follow-header">
         <div className="user-follow-avatar">
           {user.avatar ? (
-            <img src={`${API_URL}${user.avatar}`} alt={user.name} />
+            <img src={resolveMediaUrl(user.avatar)} alt={user.name} />
           ) : (
             <span>{user.name?.[0]?.toUpperCase() || 'U'}</span>
           )}

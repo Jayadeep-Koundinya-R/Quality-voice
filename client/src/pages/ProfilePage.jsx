@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/common/Toast';
-import { getProfile, updateProfile, getUserProfile, followUser, unfollowUser, checkFollow, API_URL } from '../utils/api';
+import { getProfile, updateProfile, getUserProfile, followUser, unfollowUser, checkFollow, resolveMediaUrl } from '../utils/api';
 import {
-  ShieldCheck, LayoutDashboard, MapPin,
+  ShieldCheck, LayoutDashboard, MapPin, Home,
   Upload, Star, Settings, Edit2, Plus, DoorOpen, ChevronRight,
-  MessageSquare, TrendingUp, UserPlus, X, Gift
+  MessageSquare, TrendingUp, UserPlus, X, Gift, Users
 } from 'lucide-react';
 import FollowersList from '../components/common/FollowersList';
 import InviteFriends from '../components/common/InviteFriends';
@@ -108,6 +108,8 @@ const ProfilePage = () => {
   const shopsCount = new Set(reviews.map(r => r.shopId?._id)).size;
   const followersCount = targetUser?.followers?.length || 0;
   const followingCount = targetUser?.following?.length || 0;
+  const socialReach = followersCount + followingCount;
+  const communityTier = followersCount >= 25 ? 'Local influencer' : followersCount >= 10 ? 'Rising reviewer' : 'New voice';
 
   const handleSave = async e => {
     e.preventDefault();
@@ -140,7 +142,7 @@ const ProfilePage = () => {
             <div className="profile-avatar-ring">
               {targetUser?.avatar && !avatarError
                 ? <img 
-                    src={`${API_URL}${targetUser.avatar}`} 
+                    src={resolveMediaUrl(targetUser.avatar)}
                     alt={targetUser.name} 
                     onError={() => setAvatarError(true)}
                   />
@@ -183,23 +185,42 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            {/* Social Stats Grid */}
-            <div className="profile-stats-grid">
-              <div className="profile-stat-card" onClick={() => setShowFollowers(true)} style={{cursor:'pointer'}}>
-                <span className="profile-stat-label">Followers</span>
-                <div className="profile-stat-value profile-stat-value--blue">
-                  {followersCount}
+            <div className="profile-social-card">
+              <div className="profile-social-card__header">
+                <div>
+                  <span className="profile-social-card__eyebrow">Community</span>
+                  <h3 className="profile-social-card__title">Your network at a glance</h3>
+                </div>
+                <span className="profile-social-card__badge">{communityTier}</span>
+              </div>
+
+              <div className="profile-social-card__grid">
+                <button className="profile-social-tile" onClick={() => setShowFollowers(true)} type="button">
+                  <span className="profile-social-tile__label">Followers</span>
+                  <strong className="profile-social-tile__value">{followersCount}</strong>
+                  <span className="profile-social-tile__hint">People who trust your voice</span>
+                </button>
+                <button className="profile-social-tile" onClick={() => setShowFollowing(true)} type="button">
+                  <span className="profile-social-tile__label">Following</span>
+                  <strong className="profile-social-tile__value">{followingCount}</strong>
+                  <span className="profile-social-tile__hint">Creators you keep up with</span>
+                </button>
+                <div className="profile-social-tile profile-social-tile--accent">
+                  <span className="profile-social-tile__label">Points</span>
+                  <strong className="profile-social-tile__value">{reviews.length * 10 + shopsCount * 20}</strong>
+                  <span className="profile-social-tile__hint">Earned from reviews and shop activity</span>
                 </div>
               </div>
-              <div className="profile-stat-card" onClick={() => setShowFollowing(true)} style={{cursor:'pointer'}}>
-                <span className="profile-stat-label">Following</span>
-                <div className="profile-stat-value profile-stat-value--blue">
-                  {followingCount}
-                </div>
-              </div>
-              <div className="profile-stat-card">
-                <span className="profile-stat-label">Points</span>
-                <div className="profile-stat-value profile-stat-value--green">{reviews.length * 10 + shopsCount * 20}</div>
+
+              <div className="profile-social-card__footer">
+                <span className="profile-social-card__footer-item">
+                  <Users size={14} />
+                  Reach across {socialReach} community connections
+                </span>
+                <span className="profile-social-card__footer-item">
+                  <MessageSquare size={14} />
+                  {reviews.length} published reviews
+                </span>
               </div>
             </div>
 
@@ -231,6 +252,13 @@ const ProfilePage = () => {
 
             {isOwnProfile && (
               <div className="profile-menu-group">
+                <button className="profile-menu-row" onClick={() => navigate('/home')}>
+                  <div className="profile-menu-icon" style={{ background: 'rgba(91,79,232,0.10)', color: 'var(--brand)' }}>
+                    <Home size={15} />
+                  </div>
+                  <span className="profile-menu-label">Home</span>
+                  <ChevronRight size={15} className="profile-menu-chevron" />
+                </button>
                 {(currentUser?.role === 'govt' || currentUser?.role === 'admin') && (
                   <button className="profile-menu-row" onClick={() => navigate('/dashboard')}>
                     <div className="profile-menu-icon" style={{ background: 'rgba(5,150,105,0.12)', color: 'var(--green)' }}>
@@ -335,7 +363,7 @@ const ProfilePage = () => {
                       {avatarPreview
                       ? <img src={avatarPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       : targetUser?.avatar
-                        ? <img src={`${API_URL}${targetUser.avatar}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ? <img src={resolveMediaUrl(targetUser.avatar)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         : <span>{initials}</span>}
                   </div>
                   <span className="edit-avatar-text"><Upload size={13} /> Change Photo</span>

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SkeletonFeedSection, SkeletonReviewCard } from '../components/common/SkeletonCard';
-import { getFeed, markHelpful, getFollowSuggestions, API_URL } from '../utils/api';
+import { getFeed, markHelpful, getFollowSuggestions, resolveMediaUrl } from '../utils/api';
 import { useLocation } from '../context/LocationContext';
 import { useAuth } from '../context/AuthContext';
-import { Heart, MessageSquare, Flag, Star, Plus, ArrowRight, Sparkles, TrendingUp, Users } from 'lucide-react';
+import { Heart, MessageSquare, Flag, Star, Plus, ArrowRight, Sparkles, TrendingUp, Users, MapPin, UserPlus } from 'lucide-react';
 import '../styles/Home.css';
 import UserFollowCard from '../components/common/UserFollowCard';
 
@@ -56,12 +56,14 @@ const ReviewFeedCard = ({ review, currentUser, onNavigate }) => {
   );
   const [marking, setMarking] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [photoAvailable, setPhotoAvailable] = useState(true);
 
   const initials = review.userId?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
   const avatarGrad = getAvatarGradient(review.userId?.name);
   const reviewText = review.reviewText || '';
   const isLong = reviewText.length > 160;
-  const displayText = isLong && !expanded ? reviewText.slice(0, 160) + '…' : reviewText;
+  const displayText = isLong && !expanded ? `${reviewText.slice(0, 160)}...` : reviewText;
+  const reviewPhoto = resolveMediaUrl(review.photos?.[0]);
 
   const handleHelpful = async () => {
     if (!currentUser || marking) return;
@@ -98,7 +100,7 @@ const ReviewFeedCard = ({ review, currentUser, onNavigate }) => {
       </div>
 
       {/* ── Photo (if any) ── */}
-      {review.photos?.length > 0 && (
+      {reviewPhoto && photoAvailable && (
         <div
           className="rf-photo-wrap"
           onClick={() => onNavigate(`/shop/${review.shopId?._id}`)}
@@ -107,10 +109,11 @@ const ReviewFeedCard = ({ review, currentUser, onNavigate }) => {
           onKeyDown={e => e.key === 'Enter' && onNavigate(`/shop/${review.shopId?._id}`)}
         >
           <img
-            src={`${API_URL}${review.photos[0]}`}
+            src={reviewPhoto}
             alt="Review"
             className="rf-photo"
             loading="lazy"
+            onError={() => setPhotoAvailable(false)}
           />
         </div>
       )}
@@ -169,6 +172,7 @@ const ReviewFeedCard = ({ review, currentUser, onNavigate }) => {
 const TrendingCard = ({ shop }) => {
   const navigate = useNavigate();
   const initial = shop.name?.[0]?.toUpperCase() || '?';
+  const shopPhoto = resolveMediaUrl(shop.photos?.[0]);
 
   const GRADIENTS = {
     Food:     'linear-gradient(135deg,#f093fb,#f5576c)',
@@ -188,9 +192,9 @@ const TrendingCard = ({ shop }) => {
     >
       {/* Image / gradient area */}
       <div className="trending-card-img" style={{ background: gradient }}>
-        {shop.photos?.length > 0 ? (
+        {shopPhoto ? (
           <img 
-            src={`${API_URL}${shop.photos[0]}`} 
+            src={shopPhoto}
             alt={shop.name} 
             className="trending-card-photo" 
             loading="lazy" 
@@ -361,6 +365,8 @@ const HomePage = () => {
   }, [fetchFeedPage, hasMoreReviews, loading, page]);
 
   const cityName = location.city || 'Your City';
+  const suggestionHighlights = followingUsers.slice(0, 3);
+  const suggestionCities = [...new Set(followingUsers.map(item => item.location?.city).filter(Boolean))];
 
   return (
     <div 
@@ -480,7 +486,7 @@ const HomePage = () => {
             <div className="home-section-header">
               <h2 className="home-section-title">
                 <Users size={16} />
-                Following
+                People worth following
               </h2>
               <button className="home-see-all" onClick={() => navigate('/search')}>
                 Find people <ArrowRight size={13} />
@@ -492,24 +498,59 @@ const HomePage = () => {
                 {[1, 2, 3].map(i => <SkeletonReviewCard key={i} />)}
               </div>
             ) : followingUsers.length === 0 ? (
-              <div className="home-empty-state">
-                <p className="home-empty-title">No one to follow yet</p>
-                <p className="home-empty-sub">Search for reviewers to follow and see their activity in your feed.</p>
+              <div className="home-empty-state home-empty-state--social">
+                <div className="home-empty-social-icon">
+                  <UserPlus size={24} />
+                </div>
+                <p className="home-empty-title">Build your trusted circle</p>
+                <p className="home-empty-subtitle">Follow thoughtful reviewers nearby so your feed starts feeling more personal and more useful.</p>
                 <button className="home-add-btn" onClick={() => navigate('/search')}>
                   Find reviewers
                 </button>
               </div>
             ) : (
-              <div className="following-feed-list">
-                {followingUsers.map(followUser => (
-                  <UserFollowCard 
-                    key={followUser._id} 
-                    user={followUser}
-                    onFollow={() => {
-                      setFollowingUsers(prev => prev.filter(u => u._id !== followUser._id));
-                    }}
-                  />
-                ))}
+              <div className="social-discovery-card">
+                <div className="social-discovery-card__intro">
+                  <div>
+                    <p className="social-discovery-card__eyebrow">Community picks</p>
+                    <h3 className="social-discovery-card__title">Recommended voices in and around {cityName}</h3>
+                    <p className="social-discovery-card__subtitle">
+                      Follow people who actively review local places so your home feed stays fresh and relevant.
+                    </p>
+                  </div>
+                  <div className="social-discovery-card__chips">
+                    <span className="social-discovery-chip">
+                      <Users size={14} />
+                      {followingUsers.length} suggestions
+                    </span>
+                    {suggestionCities[0] && (
+                      <span className="social-discovery-chip social-discovery-chip--ghost">
+                        <MapPin size={14} />
+                        {suggestionCities.slice(0, 2).join(' • ')}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="social-discovery-avatars" aria-hidden="true">
+                  {suggestionHighlights.map((person) => (
+                    <span key={person._id} className="social-discovery-avatar-stack">
+                      {person.name?.slice(0, 1)?.toUpperCase() || 'U'}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="following-feed-list following-feed-list--grid">
+                  {followingUsers.map(followUser => (
+                    <UserFollowCard
+                      key={followUser._id}
+                      user={followUser}
+                      onFollow={() => {
+                        setFollowingUsers(prev => prev.filter(u => u._id !== followUser._id));
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </section>

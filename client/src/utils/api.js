@@ -3,11 +3,18 @@ import axios from 'axios';
 // Get API URL from environment or use production fallback
 const API_URL = process.env.REACT_APP_API_URL || 'https://quality-voice.onrender.com';
 
-if (!process.env.REACT_APP_API_URL && import.meta.env.PROD) {
+if (!process.env.REACT_APP_API_URL && process.env.NODE_ENV === 'production') {
   console.warn('⚠️ REACT_APP_API_URL not set. Using default:', API_URL);
 }
 
 export { API_URL };
+
+export const resolveMediaUrl = (path) => {
+  if (!path || typeof path !== 'string') return '';
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${API_URL}${path.startsWith('/') ? path : `/${path}`}`;
+};
+
 const API = axios.create({
   baseURL: `${API_URL}/api`
 });
