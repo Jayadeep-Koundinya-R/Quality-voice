@@ -6,6 +6,7 @@ import { getProfile, updateProfile, getUserProfile, followUser, unfollowUser, ch
 import {
   ShieldCheck, LayoutDashboard, MapPin,
   Upload, Star, Settings, Edit2, Plus, DoorOpen, ChevronRight,
+  MessageSquare, TrendingUp, UserPlus, X, Gift
 } from 'lucide-react';
 import FollowersList from '../components/common/FollowersList';
 import InviteFriends from '../components/common/InviteFriends';
