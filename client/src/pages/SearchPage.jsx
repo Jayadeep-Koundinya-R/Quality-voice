@@ -4,7 +4,7 @@ import { ShopCardHorizontal } from '../components/common/ShopCard';
 import { SkeletonShopCardHorizontal } from '../components/common/SkeletonCard';
 import { getShops } from '../utils/api';
 import { useLocation } from '../context/LocationContext';
-import { Search, X, MapPin, SlidersHorizontal, Star, Compass, Sparkles, Clock, ArrowUpDown, Mic } from 'lucide-react';
+import { Search, X, MapPin, SlidersHorizontal, Star, Compass, Sparkles, Clock, ArrowUpDown, Mic, Users } from 'lucide-react';
 import '../styles/Search.css';
 
 const CATEGORIES = ['All', 'Food', 'Services', 'Shops', 'Products'];
@@ -239,9 +239,18 @@ const SearchPage = () => {
               Explore top-rated places with live filters, local ranking, and instant results.
             </p>
           </div>
-          <div className="search-hero-pill">
-            <Compass size={14} />
-            {locationLabel}
+          <div className="search-hero-actions">
+            <div className="search-hero-pill">
+              <Compass size={14} />
+              {locationLabel}
+            </div>
+            <button
+              className="search-people-btn"
+              onClick={() => navigate('/people')}
+            >
+              <Users size={14} />
+              Find People
+            </button>
           </div>
         </section>
 

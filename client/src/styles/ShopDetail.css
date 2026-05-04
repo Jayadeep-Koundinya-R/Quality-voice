@@ -230,6 +230,25 @@
   font-weight: 600;
 }
 
+/* Save button */
+.shop-actions .btn-save-active {
+  flex: 1;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(91,79,232,0.1);
+  border: 1px solid rgba(91,79,232,0.35);
+  color: var(--brand);
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.shop-actions .btn-save-active:hover { background: rgba(91,79,232,0.18); }
+
 .shop-actions .btn-ghost {
   flex: 0;
   min-width: auto;

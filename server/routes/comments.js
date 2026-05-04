@@ -63,4 +63,24 @@ router.post('/', protect, async (req, res) => {
   }
 });
 
+// DELETE /api/comments/:id — delete own comment (or admin)
+router.delete('/:id', protect, async (req, res) => {
+  try {
+    const comment = await Comment.findById(req.params.id);
+    if (!comment) return res.status(404).json({ message: 'Comment not found' });
+
+    const isOwner = comment.userId.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ message: 'Not authorised to delete this comment' });
+    }
+
+    await comment.deleteOne();
+    res.json({ message: 'Comment deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 module.exports = router;

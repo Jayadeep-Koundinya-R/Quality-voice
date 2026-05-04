@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getShop, getReviews, likeReview, getShops, API_URL } from '../utils/api';
+import { getShop, getReviews, likeReview, getShops, toggleSavedShop, getSavedShops, deleteShop, API_URL } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/common/Toast';
 import { SkeletonReviewCard } from '../components/common/SkeletonCard';
 import {
   ArrowLeft, MapPin, Flag, PenLine, MessageSquare,
-  Heart, X, ChevronLeft, ChevronRight, ShieldCheck, Star, TrendingUp, Camera
+  Heart, X, ChevronLeft, ChevronRight, ShieldCheck, Star, TrendingUp, Camera,
+  Bookmark, BookmarkCheck, Trash2
 } from 'lucide-react';
 import ShareButton from '../components/common/ShareButton';
 import DiscussionThreads from '../components/common/DiscussionThreads';
@@ -213,6 +215,7 @@ const ShopDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
+  const toast = useToast();
 
   const [shop, setShop]         = useState(null);
   const [reviews, setReviews]   = useState([]);
@@ -224,6 +227,9 @@ const ShopDetailPage = () => {
   const [error, setError]       = useState('');
   const [coverLb, setCoverLb]   = useState(false);
   const [parallaxOffset, setParallaxOffset] = useState(0);
+  const [isSaved, setIsSaved]   = useState(false);
+  const [savingShop, setSavingShop] = useState(false);
+  const [deletingShop, setDeletingShop] = useState(false);
 
   // Parallax scroll effect
   useEffect(() => {
@@ -251,11 +257,39 @@ const ShopDetailPage = () => {
         const [sr, rr] = await Promise.all([getShop(id), getReviews(id)]);
         setShop(sr.data.shop);
         setReviews(rr.data.reviews);
+        // Check if this shop is saved
+        try {
+          const { data } = await getSavedShops();
+          setIsSaved((data.savedShops || []).some(s => s._id === id));
+        } catch { /* non-critical */ }
       } catch { setError('Could not load this shop. Try again.'); }
       finally { setLoading(false); setRevLoad(false); }
     };
     load();
   }, [id]);
+
+  const handleToggleSave = async () => {
+    if (!currentUser) { toast.error('Log in to save shops'); return; }
+    setSavingShop(true);
+    try {
+      const { data } = await toggleSavedShop(id);
+      setIsSaved(data.saved);
+      toast.success(data.saved ? 'Shop saved!' : 'Shop removed from saved');
+    } catch { toast.error('Failed to update saved shops'); }
+    finally { setSavingShop(false); }
+  };
+
+  const handleDeleteShop = async () => {
+    if (!window.confirm(`Delete "${shop?.name}"? This will also delete all reviews. This cannot be undone.`)) return;
+    setDeletingShop(true);
+    try {
+      await deleteShop(id);
+      toast.success('Shop deleted');
+      navigate(-1);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to delete shop');
+    } finally { setDeletingShop(false); }
+  };
 
 
 
@@ -351,15 +385,35 @@ const ShopDetailPage = () => {
           <button className="btn btn-primary" onClick={() => navigate(`/write-review/${shop._id}`)}>
             <PenLine size={15} /> Write a Review
           </button>
+          <button
+            className={`btn ${isSaved ? 'btn-save-active' : 'btn-ghost'}`}
+            onClick={handleToggleSave}
+            disabled={savingShop}
+            title={isSaved ? 'Remove from saved' : 'Save shop'}
+          >
+            {isSaved ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
+            {isSaved ? 'Saved' : 'Save'}
+          </button>
           <button className="btn btn-danger-outline" onClick={() => navigate(`/report/${shop._id}`)}>
             <Flag size={15} /> Report
           </button>
-          <ShareButton 
+          <ShareButton
             title="Share"
             content={`Check out ${shop.name} on Quality Voice`}
             url={window.location.href}
             variant="ghost"
           />
+          {/* Delete — only visible to shop owner or admin */}
+          {currentUser && (shop.addedBy?._id === currentUser._id || shop.addedBy === currentUser._id || currentUser.role === 'admin') && (
+            <button
+              className="btn btn-danger-outline"
+              onClick={handleDeleteShop}
+              disabled={deletingShop}
+              title="Delete shop"
+            >
+              <Trash2 size={15} /> {deletingShop ? 'Deleting…' : 'Delete'}
+            </button>
+          )}
         </div>
 
         {/* ── Tabs ── */}

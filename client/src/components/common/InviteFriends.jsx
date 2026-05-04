@@ -3,7 +3,14 @@ import { Users, Copy, Gift, Link, Check, Share2, Sparkles, ArrowRight } from 'lu
 import { useToast } from './Toast';
 
 const InviteFriends = () => {
-  const [referralCode] = useState('QV' + Math.random().toString(36).substring(2, 8).toUpperCase());
+  const [referralCode] = useState(() => {
+    // Persist code so it doesn't change on every render
+    const stored = localStorage.getItem('qv_referral_code');
+    if (stored) return stored;
+    const code = 'QV' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    localStorage.setItem('qv_referral_code', code);
+    return code;
+  });
   const [copied, setCopied] = useState(false);
   const toast = useToast();
 

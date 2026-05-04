@@ -9,6 +9,7 @@ import Navbar from './components/common/Navbar';
 import BottomTabBar from './components/common/BottomTabBar';
 import GlobalErrorBoundary from './components/common/GlobalErrorBoundary';
 import GlobalBackground from './components/common/GlobalBackground';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 import './styles/global.css';
 
@@ -28,6 +29,7 @@ const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const AddShopPage = lazy(() => import('./pages/AddShopPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const PremiumPage = lazy(() => import('./pages/PremiumPage'));
+const UserSearchPage = lazy(() => import('./pages/UserSearchPage'));
 
 const PageLoader = () => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', width: '100%' }}>
@@ -39,7 +41,7 @@ const PageLoader = () => (
 const AppShell = ({ children }) => (
   <div className="app-shell">
     <Navbar />
-    <main className="page-wrapper">
+    <main id="main-content" className="page-wrapper">
       {children}
     </main>
     <BottomTabBar />
@@ -55,6 +57,7 @@ const App = () => {
             <ToastProvider>
               <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <GlobalBackground />
+                <PWAInstallPrompt />
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
                     {/* Public — no shell */}
@@ -104,6 +107,9 @@ const App = () => {
                     } />
                     <Route path="/premium" element={
                       <ProtectedRoute><AppShell><PremiumPage /></AppShell></ProtectedRoute>
+                    } />
+                    <Route path="/people" element={
+                      <ProtectedRoute><AppShell><UserSearchPage /></AppShell></ProtectedRoute>
                     } />
 
                     <Route path="*" element={<Navigate to="/" replace />} />

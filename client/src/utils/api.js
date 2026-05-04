@@ -34,11 +34,15 @@ export const login = (data) => API.post('/auth/login', data);
 export const getProfile = () => API.get('/users/profile');
 export const getUserProfile = (id) => API.get(`/users/${id}`);
 export const updateProfile = (data) => API.put('/users/profile', data);
+export const searchUsers = (q) => API.get('/users/search/query', { params: { q } });
+export const getSavedShops = () => API.get('/users/saved-shops/list');
+export const toggleSavedShop = (shopId) => API.post(`/users/saved-shops/${shopId}`);
 
 // Shops
 export const getShops = (params) => API.get('/shops', { params });
 export const getShop = (id) => API.get(`/shops/${id}`);
 export const createShop = (data) => API.post('/shops', data);
+export const deleteShop = (id) => API.delete(`/shops/${id}`);
 
 // Reviews
 export const getReviews = (shopId) => API.get(`/reviews/${shopId}`);
@@ -49,6 +53,7 @@ export const markHelpful = (reviewId) => API.post(`/reviews/${reviewId}/helpful`
 // Comments
 export const getComments = (reviewId) => API.get(`/comments/${reviewId}`);
 export const createComment = (data) => API.post('/comments', data);
+export const deleteComment = (commentId) => API.delete(`/comments/${commentId}`);
 
 // Reports
 export const createReport = (data) => API.post('/reports', data);

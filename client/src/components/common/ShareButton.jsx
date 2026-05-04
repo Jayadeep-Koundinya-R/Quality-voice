@@ -1,144 +1,130 @@
-import React, { useState } from 'react';
-import { Share2, Copy } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Share2, Copy, Check } from 'lucide-react';
 import { useToast } from './Toast';
+import '../../styles/Social.css';
 
-const Facebook = ({ size, className }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+/* ── Inline SVG icons (no Tailwind dependency) ─────────────────────────────── */
+const WhatsAppIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
   </svg>
 );
 
-const Twitter = ({ size, className }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
+const TwitterIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
   </svg>
 );
 
-const ShareButton = ({ 
-  content = 'Check this out!', 
+const FacebookIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+);
+
+const ShareButton = ({
+  content = 'Check this out!',
   url = window.location.href,
   title = 'Share',
   size = 'md',
-  variant = 'primary'
+  variant = 'ghost'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const toast = useToast();
+  const menuRef = useRef(null);
 
-  const sizeClasses = {
-    sm: 'px-3 py-1.5 text-xs',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base'
-  };
-
-  const variantClasses = {
-    primary: 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700',
-    outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800',
-    ghost: 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
-  };
+  // Close on outside click
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = e => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setIsOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isOpen]);
 
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      toast.success('Link copied to clipboard!');
+      setCopied(true);
+      toast.success('Link copied!');
+      setTimeout(() => setCopied(false), 2000);
       setIsOpen(false);
-    } catch (err) {
+    } catch {
       toast.error('Failed to copy link');
     }
   };
 
-  const handleShare = async (platform) => {
-    let shareUrl = '';
-    
-    switch (platform) {
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-        break;
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(content)}`;
-        break;
-      case 'instagram':
-        toast.info('Instagram sharing requires app installation');
-        return;
-      default:
-        return;
-    }
-
-    if (window.share && platform === 'native') {
+  const handleNativeShare = async () => {
+    if (navigator.share) {
       try {
-        await navigator.share({
-          title: title,
-          text: content,
-          url: url
-        });
+        await navigator.share({ title, text: content, url });
         setIsOpen(false);
-      } catch (err) {
-        console.log('Native share cancelled');
-      }
-    } else {
-      window.open(shareUrl, '_blank', 'width=600,height=400');
+      } catch { /* user cancelled */ }
     }
   };
 
+  const openShareWindow = (shareUrl) => {
+    window.open(shareUrl, '_blank', 'width=600,height=400,noopener,noreferrer');
+    setIsOpen(false);
+  };
+
+  const platforms = [
+    {
+      label: 'WhatsApp',
+      icon: <WhatsAppIcon />,
+      color: '#25D366',
+      action: () => openShareWindow(`https://wa.me/?text=${encodeURIComponent(content + ' ' + url)}`)
+    },
+    {
+      label: 'Twitter / X',
+      icon: <TwitterIcon />,
+      color: '#000',
+      action: () => openShareWindow(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(content)}`)
+    },
+    {
+      label: 'Facebook',
+      icon: <FacebookIcon />,
+      color: '#1877F2',
+      action: () => openShareWindow(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`)
+    },
+  ];
+
   return (
-    <div className="relative inline-block text-left">
+    <div className="share-btn-wrap" ref={menuRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`
-          ${sizeClasses[size]}
-          ${variantClasses[variant]}
-          flex items-center gap-2 rounded-lg font-medium transition-all duration-200
-          ${variant === 'primary' ? 'shadow-md hover:shadow-lg' : ''}
-        `}
+        className={`share-trigger share-trigger--${variant} share-trigger--${size}`}
+        onClick={() => navigator.share ? handleNativeShare() : setIsOpen(v => !v)}
         aria-label="Share"
+        aria-expanded={isOpen}
       >
-        {variant === 'primary' ? (
-          <Share2 size={size === 'sm' ? 14 : size === 'md' ? 16 : 18} />
-        ) : (
-          <Share2 size={size === 'sm' ? 14 : size === 'md' ? 16 : 18} />
-        )}
+        <Share2 size={size === 'sm' ? 13 : 15} />
         <span>{title}</span>
       </button>
 
       {isOpen && (
-        <>
-          <div 
-            className="fixed inset-0 z-10" 
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 z-20 overflow-hidden animate-fade-in-down">
-            <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                Share this content
-              </h3>
-            </div>
-            
-            <div className="p-2">
-              <button
-                onClick={() => handleShare('facebook')}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Facebook size={20} className="text-blue-600" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Facebook</span>
-              </button>
-              
-              <button
-                onClick={() => handleShare('twitter')}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Twitter size={20} className="text-sky-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Twitter</span>
-              </button>
-              
-              <button
-                onClick={handleCopyLink}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Copy size={20} className="text-gray-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Copy Link</span>
-              </button>
-            </div>
-          </div>
-        </>
+        <div className="share-menu" role="menu">
+          <div className="share-menu-header">Share via</div>
+          {platforms.map(p => (
+            <button
+              key={p.label}
+              className="share-menu-item"
+              onClick={p.action}
+              role="menuitem"
+            >
+              <span className="share-menu-icon" style={{ color: p.color }}>{p.icon}</span>
+              <span>{p.label}</span>
+            </button>
+          ))}
+          <div className="share-menu-divider" />
+          <button className="share-menu-item" onClick={handleCopyLink} role="menuitem">
+            <span className="share-menu-icon" style={{ color: 'var(--text2)' }}>
+              {copied ? <Check size={18} /> : <Copy size={18} />}
+            </span>
+            <span>{copied ? 'Copied!' : 'Copy link'}</span>
+          </button>
+        </div>
       )}
     </div>
   );

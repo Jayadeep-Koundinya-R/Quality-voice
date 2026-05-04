@@ -1,0 +1,336 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+  SAVED SHOPS SECTION
+  Bookmarked shops display and management
+  ═══════════════════════════════════════════════════════════════════════════════ */
+
+.saved-shops-section {
+  padding: 24px 0;
+}
+
+.saved-shops-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding: 0 16px;
+}
+
+.saved-shops-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text1);
+  margin: 0;
+}
+
+.saved-shops-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: rgba(91, 79, 232, 0.1);
+  color: var(--brand);
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ─── EMPTY STATE ──────────────────────────────────────────────────────────── */
+
+.saved-shops-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  background: var(--bg2);
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  margin: 0 16px;
+}
+
+.saved-shops-empty-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(91, 79, 232, 0.1);
+  color: var(--brand);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.saved-shops-empty-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text1);
+  margin: 0;
+}
+
+.saved-shops-empty-subtitle {
+  font-size: 13px;
+  color: var(--text2);
+  max-width: 280px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.saved-shops-empty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 10px 18px;
+  background: var(--grad);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.saved-shops-empty-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(91, 79, 232, 0.3);
+}
+
+/* ─── GRID ────────────────────────────────────────────────────────────────── */
+
+.saved-shops-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  padding: 0 16px;
+}
+
+.saved-shop-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.saved-shop-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(91, 79, 232, 0.3);
+  box-shadow: var(--shadow-md);
+}
+
+/* ─── SHOP IMAGE ───────────────────────────────────────────────────────────── */
+
+.saved-shop-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--bg3);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.saved-shop-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.saved-shop-card:hover .saved-shop-image img {
+  transform: scale(1.05);
+}
+
+.saved-shop-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-size: 32px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── REMOVE BUTTON ────────────────────────────────────────────────────────── */
+
+.saved-shop-remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: var(--transition);
+  backdrop-filter: blur(4px);
+}
+
+.saved-shop-card:hover .saved-shop-remove-btn {
+  opacity: 1;
+}
+
+.saved-shop-remove-btn:hover {
+  background: rgba(239, 68, 68, 0.8);
+}
+
+.saved-shop-remove-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── SHOP INFO ────────────────────────────────────────────────────────────── */
+
+.saved-shop-info {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.saved-shop-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text1);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.saved-shop-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.saved-shop-category {
+  display: inline-block;
+  padding: 2px 6px;
+  background: rgba(91, 79, 232, 0.1);
+  color: var(--brand);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.saved-shop-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  background: rgba(34, 197, 94, 0.1);
+  color: #22C55E;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.saved-shop-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.saved-shop-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.saved-shop-rating-value {
+  font-weight: 700;
+  color: #F59E0B;
+}
+
+.saved-shop-review-count {
+  color: var(--text3);
+}
+
+/* ─── LOADING ──────────────────────────────────────────────────────────────── */
+
+.saved-shops-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+/* ─── RESPONSIVE ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .saved-shops-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    padding: 0 12px;
+  }
+
+  .saved-shops-header {
+    padding: 0 12px;
+  }
+
+  .saved-shops-empty {
+    margin: 0 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .saved-shops-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    padding: 0 12px;
+  }
+
+  .saved-shop-info {
+    padding: 10px;
+    gap: 4px;
+  }
+
+  .saved-shop-name {
+    font-size: 12px;
+  }
+
+  .saved-shop-category {
+    font-size: 9px;
+    padding: 2px 4px;
+  }
+
+  .saved-shop-location {
+    font-size: 10px;
+  }
+
+  .saved-shop-rating {
+    font-size: 10px;
+  }
+}

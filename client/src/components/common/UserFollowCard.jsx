@@ -3,6 +3,7 @@ import { checkFollow, followUser, unfollowUser, resolveMediaUrl } from '../../ut
 import { useAuth } from '../../context/AuthContext';
 import { UserPlus, UserCheck, MessageSquare, Star } from 'lucide-react';
 import { useToast } from './Toast';
+import '../../styles/Social.css';
 
 const UserFollowCard = ({ user, onFollow, onUnfollow }) => {
   const { user: currentUser } = useAuth();

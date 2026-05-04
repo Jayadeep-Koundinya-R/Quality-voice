@@ -239,10 +239,3 @@
   margin-top: 6px;
   box-shadow: 0 0 12px var(--brand);
 }
-
-/* Spinner wrapper override */
-.spinner-wrap {
-  display: flex;
-  justify-content: center;
-  padding: 40px 0;
-}

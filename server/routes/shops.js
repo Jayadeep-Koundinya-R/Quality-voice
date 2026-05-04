@@ -82,4 +82,31 @@ router.post('/', protect, upload.array('photos', 5), async (req, res) => {
   }
 });
 
+// DELETE /api/shops/:id — delete a shop (owner or admin only)
+router.delete('/:id', protect, async (req, res) => {
+  try {
+    const shop = await Shop.findById(req.params.id);
+    if (!shop) return res.status(404).json({ message: 'Shop not found' });
+
+    const isOwner = shop.addedBy?.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ message: 'Not authorised to delete this shop' });
+    }
+
+    // Also delete all reviews for this shop
+    const Review = require('../models/Review');
+    const Comment = require('../models/Comment');
+    const reviewIds = await Review.find({ shopId: shop._id }).distinct('_id');
+    await Comment.deleteMany({ reviewId: { $in: reviewIds } });
+    await Review.deleteMany({ shopId: shop._id });
+    await shop.deleteOne();
+
+    res.json({ message: 'Shop and all associated reviews deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 module.exports = router;
