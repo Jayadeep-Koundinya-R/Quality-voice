@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Users, X } from 'lucide-react';
 import { searchUsers, resolveMediaUrl } from '../utils/api';
 import FollowButton from '../components/common/FollowButton';
-import { useAuth } from '../context/AuthContext';
 import '../styles/UserSearch.css';
 
 const getAvatarGradient = name => {
@@ -16,7 +15,6 @@ const getAvatarGradient = name => {
 
 const UserSearchPage = () => {
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
